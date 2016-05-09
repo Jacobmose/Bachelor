@@ -63,7 +63,6 @@ void MainWindow::loadFile(QString fileName)
 {
     QString lineData;
     QFile file("C:/Users/jacobmosehansen/Desktop/Test/" + fileName);
-
 //    if(!file.open(QIODevice::ReadOnly))
 //    {
 //        qDebug() << "Cannot open file: " << fileName;
