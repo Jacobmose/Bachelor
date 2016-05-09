@@ -2,8 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+
+#include <QProgressBar>
+
 #include "devicedialog.h"
 #include "serialhandler.h"
+
+#include "jogdialog.h"
 
 #define COMMAND_BUFFER_LENGTH 127
 
@@ -17,6 +22,7 @@ struct PrinterStatus {
     double MPosZ;
     double extruderTemp;
     double bedTemp;
+    double axisSteps = 1;
     bool isPrinting = false;
     bool isPrintComplete = false;
 };
@@ -46,8 +52,20 @@ public:
     ~MainWindow();
 
 
+    PrinterStatus printerStatus;
 
-    bool isOkReceived();
+public slots:
+    void onJogBtnXPlusClicked();
+    void onJogBtnYPlusClicked();
+    void onJogBtnZPlusClicked();
+    void onJogBtnXMinusClicked();
+    void onJogBtnYMinusClicked();
+    void onJogBtnZMinusClicked();
+
+    void onJogHalfStepClicked();
+    void onJogOneStepClicked();
+    void onJogTwoStepClicked();
+    void onJogFiveStepClicked();
 
 private slots:
 
@@ -55,34 +73,32 @@ private slots:
     void onSerialReadyRead();
     void onSerialError();
 
-    void on_btnHome_clicked();
-    void on_btnXPlus_clicked();
-    void on_btnYMinus_clicked();
-    void on_btnXMinus_clicked();
-    void on_btnYPlus_clicked();
-    void on_btnZPlus_clicked();
-    void on_btnZMinus_clicked();
+    void on_btnHome_clicked();    
     void on_btnNewPrint_clicked();
     void on_btnEmergencyStop_clicked();
     void on_btnStartPrint_clicked();
-
-    void on_pushButton_clicked();
+    void on_btnJog_clicked();
 
 private:
     Ui::MainWindow *ui;
     QSerialPort *m_serialPort;
+    JogDialog *jogDialog;
+
+    QProgressBar *progressBar;
 
     QString removeComments(QString data);
     QString removeWhiteSpace(QString data);
 
+    void getFigureFileDirectory();
 
     CommandQueue commandQueue;
-    PrinterStatus printerStatus;
 
     void sendNextCommand(int commandIndex);
 
     void openSerialPort();
     void closeSerialPort();
+
+    int mapValueToPercent(int value, int max);
 
 
     QString dataRead;
@@ -109,9 +125,6 @@ private:
     QString m_fileName;
 
     void loadFile(QString fileName);
-
-
-
 
     //SerialHandler *serialHandler;
 

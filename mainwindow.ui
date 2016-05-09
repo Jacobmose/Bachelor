@@ -18,141 +18,32 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>220</y>
-      <width>321</width>
-      <height>241</height>
+      <y>410</y>
+      <width>391</width>
+      <height>51</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="btnHome">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>409</y>
-      <width>101</width>
-      <height>51</height>
+      <x>10</x>
+      <y>10</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
     <property name="text">
      <string>Home</string>
     </property>
    </widget>
-   <widget class="QWidget" name="gridLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>10</y>
-      <width>331</width>
-      <height>251</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="1">
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>10</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="btnZMinus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Z-</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="btnZPlus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Z+</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="btnYPlus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Y+</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QPushButton" name="btnYMinus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Y-</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="btnXMinus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>X-</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QPushButton" name="btnXPlus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string>X+</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QPushButton" name="btnNewPrint">
     <property name="geometry">
      <rect>
-      <x>570</x>
-      <y>410</y>
-      <width>101</width>
-      <height>51</height>
+      <x>120</x>
+      <y>10</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
     <property name="text">
@@ -162,10 +53,10 @@
    <widget class="QPushButton" name="btnEmergencyStop">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>141</width>
-      <height>111</height>
+      <x>680</x>
+      <y>370</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
     <property name="text">
@@ -175,27 +66,74 @@
    <widget class="QPushButton" name="btnStartPrint">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>410</y>
-      <width>111</width>
-      <height>51</height>
+      <x>560</x>
+      <y>370</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
     <property name="text">
      <string>Start Print</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="btnJog">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>100</y>
-      <width>141</width>
-      <height>71</height>
+      <x>440</x>
+      <y>370</y>
+      <width>100</width>
+      <height>100</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Jog</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="lwBrowseFigures">
+    <property name="geometry">
+     <rect>
+      <x>435</x>
+      <y>10</y>
+      <width>351</width>
+      <height>351</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>350</y>
+      <width>391</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="vlPrograssBar"/>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>330</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Print progress:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>390</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Command console:</string>
     </property>
    </widget>
   </widget>
