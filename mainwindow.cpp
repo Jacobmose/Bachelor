@@ -14,14 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_serialPort = new QSerialPort(this);
 
-    //connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::readData);
-
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
-
-    connect(this, &MainWindow::sendData, this, &MainWindow::writeData);
     connect(this, &MainWindow::sendCommand, this, &MainWindow::writeData);
-
-    connect(this, &MainWindow::startPrint, this, &MainWindow::handleAndSendGCodesFromFile);
 
     QImage image("C:/Projects/QtCreator/Bachelor/Bachelor/images/arrow.png");
     ui->btnXMinus->setIcon(QPixmap::fromImage(image));
@@ -191,118 +185,6 @@ void MainWindow::sendNextCommand(int commandIndex)
 void MainWindow::onSerialError()
 {
 
-}
-
-void MainWindow::readData()
-{
-    QString serialRead;
-    serialRead.append(m_serialPort->readAll());
-
-    dataRead.append(serialRead);
-
-    qDebug() << "dataRead :" << dataRead;
-
-    if(isOkReceived())
-    {
-        if(dataRead.contains("X:"))
-        {
-            axisPositions = dataRead;
-            qDebug() << "axisPositions: " << axisPositions;
-
-            m_xPos = getAxisPositions("X");
-            m_yPos = getAxisPositions("Y");
-            m_zPos = getAxisPositions("Z");
-        }
-
-        dataRead.clear();
-        qDebug() << "ok received!!";
-    }
-
-    QStringList list;
-    list.append(serialRead);
-
-    QStringListModel *model = new QStringListModel(this);
-    model->setStringList(list);
-    ui->testListView->setModel(model);
-}
-
-bool MainWindow::isOkReceived()
-{
-    QStringList data = dataRead.split("\n");
-
-    qDebug() << "data in ok func: " << data;
-
-    //if(data.takeLast() == "ok")
-    if(data.contains("ok"))
-        return true;
-
-    return false;
-}
-
-double MainWindow::getAxisPositions(QString axis)
-{
-    QRegExp rx("(\\d*.\\d+)");
-    QString axisPos;
-    QString position;
-    QStringList axisPosList;
-    int pos = 0;
-
-    axisPos = axisPositions;
-
-    while((pos = rx.indexIn(axisPos, pos)) != -1)
-    {
-        axisPosList << rx.cap(1);
-        pos += rx.matchedLength();
-    }
-
-    if(!axisPosList.empty())
-    {
-        if(axis == "X")
-            position = axisPosList[0];
-        if(axis == "Y")
-            position = axisPosList[1];
-        if(axis == "Z")
-            position = axisPosList[2];
-    }
-    else
-        qDebug() << "Error: Axis position list is empty!";
-
-    return position.toDouble();
-}
-
-void MainWindow::handleAndSendGCodesFromFile(QString &fileName)
-{
-    QString name = fileName;
-    QString lineData;
-    QString lineRead;
-
-    QFile file("C:/Users/jacobmosehansen/Desktop/Test/" + name);
-
-    if(m_serialPort->isOpen())
-    {
-        if(file.open(QIODevice::ReadOnly))
-        {
-            QTextStream textStream(&file);
-
-            while(!textStream.atEnd())
-            {
-                lineData = textStream.readLine();
-                lineRead = lineData.toLatin1();
-                lineRead.append("\r\n");
-
-                qDebug () << "Before OK check...." << lineRead;
-
-                //if(isOkReceived())
-
-                    //qDebug() << "lineRead of GCode file: " << lineData;
-                    emit sendData(lineRead);
-            }
-
-            file.close();
-
-            qDebug() << "End of file... All GCodes should have been sent.";
-        }
-    }
 }
 
 QString MainWindow::removeComments(QString data)

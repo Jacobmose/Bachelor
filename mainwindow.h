@@ -50,17 +50,10 @@ public:
     bool isOkReceived();
 
 private slots:
+
     void writeData(QString &data);
-
-    void handleAndSendGCodesFromFile(QString &fileName);
-
-    void readData();
-
     void onSerialReadyRead();
     void onSerialError();
-
-
-
 
     void on_btnHome_clicked();
     void on_btnXPlus_clicked();
@@ -70,9 +63,7 @@ private slots:
     void on_btnZPlus_clicked();
     void on_btnZMinus_clicked();
     void on_btnNewPrint_clicked();
-
     void on_btnEmergencyStop_clicked();
-
     void on_btnStartPrint_clicked();
 
     void on_pushButton_clicked();
