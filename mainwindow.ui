@@ -14,20 +14,20 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QListView" name="testListView">
+   <widget class="QListView" name="commandListView">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>410</y>
-      <width>391</width>
-      <height>51</height>
+      <y>350</y>
+      <width>281</width>
+      <height>61</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="btnHome">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>40</x>
       <y>10</y>
       <width>100</width>
       <height>100</height>
@@ -40,7 +40,7 @@
    <widget class="QPushButton" name="btnNewPrint">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>170</x>
       <y>10</y>
       <width>100</width>
       <height>100</height>
@@ -53,10 +53,10 @@
    <widget class="QPushButton" name="btnEmergencyStop">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>370</y>
-      <width>100</width>
-      <height>100</height>
+      <x>170</x>
+      <y>280</y>
+      <width>121</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
@@ -66,8 +66,8 @@
    <widget class="QPushButton" name="btnStartPrint">
     <property name="geometry">
      <rect>
-      <x>560</x>
-      <y>370</y>
+      <x>170</x>
+      <y>120</y>
       <width>100</width>
       <height>100</height>
      </rect>
@@ -79,8 +79,8 @@
    <widget class="QPushButton" name="btnJog">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>370</y>
+      <x>40</x>
+      <y>120</y>
       <width>100</width>
       <height>100</height>
      </rect>
@@ -89,22 +89,12 @@
      <string>Jog</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="lwBrowseFigures">
-    <property name="geometry">
-     <rect>
-      <x>435</x>
-      <y>10</y>
-      <width>351</width>
-      <height>351</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>350</y>
-      <width>391</width>
+      <y>440</y>
+      <width>781</width>
       <height>31</height>
      </rect>
     </property>
@@ -114,8 +104,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>330</y>
-      <width>101</width>
+      <y>420</y>
+      <width>261</width>
       <height>16</height>
      </rect>
     </property>
@@ -127,8 +117,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>390</y>
-      <width>101</width>
+      <y>330</y>
+      <width>151</width>
       <height>16</height>
      </rect>
     </property>
@@ -136,9 +126,37 @@
      <string>Command console:</string>
     </property>
    </widget>
+   <widget class="BrowseFiguresWidget" name="lwBrowseFigures">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>280</y>
+      <width>471</width>
+      <height>151</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>319</x>
+      <y>9</y>
+      <width>471</width>
+      <height>261</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="showFigureLayout"/>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>BrowseFiguresWidget</class>
+   <extends>QListWidget</extends>
+   <header location="global">browsefigureswidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

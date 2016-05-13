@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     devicedialog.cpp \
     figuredialog.cpp \
     confirmprintdialog.cpp \
-    jogdialog.cpp
+    jogdialog.cpp \
+    browsefigureswidget.cpp
 
 HEADERS  += mainwindow.h \
     serialhandler.h \
@@ -27,9 +28,11 @@ HEADERS  += mainwindow.h \
     devicedialog.h \
     figuredialog.h \
     confirmprintdialog.h \
-    jogdialog.h
+    jogdialog.h \
+    browsefigureswidget.h
 
-RESOURCES += style.qrc
+RESOURCES += \
+    resources.qrc
 
 FORMS    += mainwindow.ui \
     devicedialog.ui \

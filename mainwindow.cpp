@@ -8,6 +8,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    imageLabel(new QLabel),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -46,9 +47,21 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->vlPrograssBar->addWidget(progressBar);
 
-    ui->lwBrowseFigures->setIconSize(QSize(50,50));
 
-    getFigureFileDirectory();
+    //ui->lwBrowseFigures->setFlow(QListWidget::TopToBottom);
+    //ui->lwBrowseFigures->setViewMode(QListWidget::IconMode);
+    //ui->lwBrowseFigures->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //ui->lwBrowseFigures->setIconSize(QSize(150,150));
+    //getFigureFileDirectory();
+
+    //imageWidget = new QWidget(this);
+    connect(ui->lwBrowseFigures, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onListItemClicked(QListWidgetItem*)));
+
+    imageLabel->setBackgroundRole(QPalette::Base);
+    imageLabel->setScaledContents(true);
+
+
+    ui->showFigureLayout->addWidget(imageLabel);
 
     openSerialPort();
 }
@@ -60,10 +73,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::onListItemClicked(QListWidgetItem* item)
+{
+      QPixmap image("C:/Users/jacobmosehansen/Pictures/testpic/" + item->text());
+      imageLabel->setPixmap(image);
+
+      selectedImageName = item->text();
+}
+
+
 void MainWindow::openSerialPort()
 {
     m_serialPort->setPortName("COM6");
-    m_serialPort->setBaudRate(250000);
+    m_serialPort->setBaudRate(115200);
     m_serialPort->setDataBits(QSerialPort::Data8);
     m_serialPort->setParity(QSerialPort::NoParity);
     m_serialPort->setStopBits(QSerialPort::OneStop);
@@ -94,9 +116,23 @@ void MainWindow::getFigureFileDirectory()
     {
         fileItem = new QListWidgetItem(file.fileName());
         fileItem->setIcon(QIcon("C:/Users/jacobmosehansen/Pictures/testpic/" + file.fileName()));
-        ui->lwBrowseFigures->addItem(fileItem);
+        //ui->lwBrowseFigures1->addItem(fileItem);
     }
 }
+
+//void MainWindow::loadImageFile(QString fileName)
+//{
+//    QString imagePath;
+//    QFile file("C:/Users/jacobmosehansen/Desktop/Test/" + fileName);
+//    imagePath = file;
+
+//    QImage imageObject = new QImage();
+//    imageObject.load(imagePath);
+
+//    QPixmap image;
+//    image = QPixmap::fromImage(imageObject);
+
+//}
 
 void MainWindow::loadFile(QString fileName)
 {
@@ -150,14 +186,14 @@ void MainWindow::onSerialReadyRead()
 {
     QStringList list;
 
+    QRegExp coordRegExp("X:(\\d+.\\d+)\\sY:(\\d+.\\d+)\\sZ:(\\d+.\\d+)");
+    QRegExp tempRegExp("T:(\\d+.\\d+)......B:(\\d+.\\d+)");
+
     while(m_serialPort->canReadLine())
     {
         QString data = m_serialPort->readLine().trimmed();
 
-        qDebug() << "Entire serial data: " << data;
-
-        QRegExp coordRegExp("X:(\\d+.\\d+)\\sY:(\\d+.\\d+)\\sZ:(\\d+.\\d+)");
-        QRegExp tempRegExp("T:(\\d+.\\d+)......B:(\\d+.\\d+)");
+        qDebug() << "Entire serial data: " << data;        
 
         if(data.contains(coordRegExp))
         {
@@ -230,7 +266,7 @@ void MainWindow::onSerialReadyRead()
 
     QStringListModel *model = new QStringListModel(this);
     model->setStringList(list);
-    ui->testListView->setModel(model);
+    ui->commandListView->setModel(model);
 }
 
 void MainWindow::sendNextCommand(int commandIndex)
@@ -312,8 +348,12 @@ void MainWindow::on_btnStartPrint_clicked()
     commandQueue.commandIndex = 0;
     commandQueue.commandList.clear();
 
-    QString a = "yay.gcode";
-    loadFile(a);
+    QString croppedImageName = selectedImageName.section(".", 0, 0) + ".gcode";
+
+    qDebug() << croppedImageName;
+
+    //QString a = "yay.gcode";
+    loadFile(croppedImageName);
 
     qDebug() << "Entire loaded file: " << commandQueue.commandList;
 

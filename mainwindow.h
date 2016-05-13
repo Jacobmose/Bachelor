@@ -5,8 +5,14 @@
 
 #include <QProgressBar>
 
+#include <QImageReader>
+
+#include <QLabel>
+
 #include "devicedialog.h"
 #include "serialhandler.h"
+
+#include "browsefigureswidget.h"
 
 #include "jogdialog.h"
 
@@ -73,6 +79,8 @@ private slots:
     void onSerialReadyRead();
     void onSerialError();
 
+    void onListItemClicked(QListWidgetItem* item);
+
     void on_btnHome_clicked();    
     void on_btnNewPrint_clicked();
     void on_btnEmergencyStop_clicked();
@@ -127,6 +135,16 @@ private:
     void loadFile(QString fileName);
 
     //SerialHandler *serialHandler;
+
+
+    QString selectedImageName;
+
+    QWidget *imageWidget;
+    QLabel *imageLabel;
+
+
+    //for image display
+    void setImage(QString &fileName);
 
 };
 

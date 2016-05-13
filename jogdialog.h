@@ -28,6 +28,9 @@ signals:
     void jogTwoStepClicked();
     void jogFiveStepClicked();
 
+private slots:
+    void on_btnClose_clicked();
+
 private:
     Ui::JogDialog *ui;
 };

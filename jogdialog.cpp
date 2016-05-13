@@ -26,3 +26,8 @@ JogDialog::~JogDialog()
 {
     delete ui;
 }
+
+void JogDialog::on_btnClose_clicked()
+{
+    close();
+}
