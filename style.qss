@@ -1,7 +1,0 @@
-QPushButton 
-{
-        background-color: transparent;
-        background-image: url("C:/Projects/QtCreator/Bachelor/Bachelor/images/arrow.png");
-        background-repeat: none;
-        border: none;
-}

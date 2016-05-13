@@ -18,18 +18,24 @@ SOURCES += main.cpp\
     gcodehandler.cpp \
     devicedialog.cpp \
     figuredialog.cpp \
-    confirmprintdialog.cpp
+    confirmprintdialog.cpp \
+    jogdialog.cpp \
+    browsefigureswidget.cpp
 
 HEADERS  += mainwindow.h \
     serialhandler.h \
     gcodehandler.h \
     devicedialog.h \
     figuredialog.h \
-    confirmprintdialog.h
+    confirmprintdialog.h \
+    jogdialog.h \
+    browsefigureswidget.h
 
-RESOURCES += style.qrc
+RESOURCES += \
+    resources.qrc
 
 FORMS    += mainwindow.ui \
     devicedialog.ui \
     figuredialog.ui \
-    confirmprintdialog.ui
+    confirmprintdialog.ui \
+    jogdialog.ui
