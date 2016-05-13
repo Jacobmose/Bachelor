@@ -1,10 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QStringListModel>
 
-#include <QDebug>
-#include <QFile>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,8 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(jogDialog, SIGNAL(jogXMinusClicked()), this, SLOT(onJogBtnXMinusClicked()));
     connect(jogDialog, SIGNAL(jogYMinusClicked()), this, SLOT(onJogBtnYMinusClicked()));
     connect(jogDialog, SIGNAL(jogZMinusClicked()), this, SLOT(onJogBtnZMinusClicked()));
-
-    // Jog axis steps
     connect(jogDialog, SIGNAL(jogHalfStepClicked()), this, SLOT(onJogHalfStepClicked()));
     connect(jogDialog, SIGNAL(jogOneStepClicked()), this, SLOT(onJogOneStepClicked()));
     connect(jogDialog, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
@@ -47,14 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->vlPrograssBar->addWidget(progressBar);
 
-
-    //ui->lwBrowseFigures->setFlow(QListWidget::TopToBottom);
-    //ui->lwBrowseFigures->setViewMode(QListWidget::IconMode);
-    //ui->lwBrowseFigures->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    //ui->lwBrowseFigures->setIconSize(QSize(150,150));
-    //getFigureFileDirectory();
-
-    //imageWidget = new QWidget(this);
     connect(ui->lwBrowseFigures, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onListItemClicked(QListWidgetItem*)));
 
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -116,23 +103,8 @@ void MainWindow::getFigureFileDirectory()
     {
         fileItem = new QListWidgetItem(file.fileName());
         fileItem->setIcon(QIcon("C:/Users/jacobmosehansen/Pictures/testpic/" + file.fileName()));
-        //ui->lwBrowseFigures1->addItem(fileItem);
     }
 }
-
-//void MainWindow::loadImageFile(QString fileName)
-//{
-//    QString imagePath;
-//    QFile file("C:/Users/jacobmosehansen/Desktop/Test/" + fileName);
-//    imagePath = file;
-
-//    QImage imageObject = new QImage();
-//    imageObject.load(imagePath);
-
-//    QPixmap image;
-//    image = QPixmap::fromImage(imageObject);
-
-//}
 
 void MainWindow::loadFile(QString fileName)
 {
@@ -151,21 +123,9 @@ void MainWindow::loadFile(QString fileName)
         while(!textStream.atEnd())
         {
             lineData = textStream.readLine();
-
-            qDebug() << "lineData: " << lineData;
-
             lineData = removeComments(lineData);
-
-            qDebug() << "lineData with removed comments: " << lineData;
-
             lineData = removeWhiteSpace(lineData);
-
-            qDebug() << "lineData with removed whitspace: " << lineData;
-
-            //lineData.append("\r\n");
             lineData = lineData.trimmed();
-
-            qDebug() << "Final lineData to append to commandList: " << lineData;
 
             commandQueue.commandList.append(lineData);
         }
@@ -193,7 +153,7 @@ void MainWindow::onSerialReadyRead()
     {
         QString data = m_serialPort->readLine().trimmed();
 
-        qDebug() << "Entire serial data: " << data;        
+        qDebug() << data;
 
         if(data.contains(coordRegExp))
         {
@@ -307,33 +267,15 @@ QString MainWindow::removeWhiteSpace(QString data)
     return data.replace(QRegExp("\\s"), "");
 }
 
-void MainWindow::on_btnNewPrint_clicked()
-{
-    DeviceDialog deviceDialog;
-
-    deviceDialog.setModal(true);
-    deviceDialog.exec();
-
-
-    //QString file = "kodetest.gcode";
-    //handleAndSendGCodesFromFile(file);
-}
-
 void MainWindow::on_btnHome_clicked()
 {
     QString homeCode = "G28\r\n";
-
     QString axisPosCode = "M114\r\n";
-
     QString tempCode = "M105\r\n";
 
     emit sendCommand(homeCode);
-
     emit sendCommand(axisPosCode);
-
     emit sendCommand(tempCode);
-
-        //qDebug() << "ok received after home. sending m114 to get axis pos";
 }
 
 void MainWindow::on_btnEmergencyStop_clicked()
@@ -350,12 +292,7 @@ void MainWindow::on_btnStartPrint_clicked()
 
     QString croppedImageName = selectedImageName.section(".", 0, 0) + ".gcode";
 
-    qDebug() << croppedImageName;
-
-    //QString a = "yay.gcode";
     loadFile(croppedImageName);
-
-    qDebug() << "Entire loaded file: " << commandQueue.commandList;
 
     printerStatus.isPrinting = true;
 
@@ -464,4 +401,10 @@ void MainWindow::onJogTwoStepClicked()
 void MainWindow::onJogFiveStepClicked()
 {
     printerStatus.axisSteps = 5;
+}
+
+void MainWindow::on_btnSliceAndPrint_clicked()
+{
+    fileDialog->setModal(true);
+    fileDialog->exec();
 }

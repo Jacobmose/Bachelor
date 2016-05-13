@@ -16,26 +16,26 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     serialhandler.cpp \
     gcodehandler.cpp \
-    devicedialog.cpp \
-    figuredialog.cpp \
     confirmprintdialog.cpp \
     jogdialog.cpp \
-    browsefigureswidget.cpp
+    browsefigureswidget.cpp \
+    filedialog.cpp \
+    sliceandprintdialog.cpp
 
 HEADERS  += mainwindow.h \
     serialhandler.h \
     gcodehandler.h \
-    devicedialog.h \
-    figuredialog.h \
     confirmprintdialog.h \
     jogdialog.h \
-    browsefigureswidget.h
+    browsefigureswidget.h \
+    filedialog.h \
+    sliceandprintdialog.h
 
 RESOURCES += \
     resources.qrc
 
 FORMS    += mainwindow.ui \
-    devicedialog.ui \
-    figuredialog.ui \
     confirmprintdialog.ui \
-    jogdialog.ui
+    jogdialog.ui \
+    filedialog.ui \
+    sliceandprintdialog.ui

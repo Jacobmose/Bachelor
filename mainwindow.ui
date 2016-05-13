@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>350</y>
-      <width>281</width>
-      <height>61</height>
+      <y>330</y>
+      <width>311</width>
+      <height>81</height>
      </rect>
     </property>
    </widget>
@@ -37,7 +37,7 @@
      <string>Home</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnNewPrint">
+   <widget class="QPushButton" name="btnSliceAndPrint">
     <property name="geometry">
      <rect>
       <x>170</x>
@@ -47,14 +47,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>New Print</string>
+     <string>Slice and Print</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnEmergencyStop">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>280</y>
+      <x>200</x>
+      <y>270</y>
       <width>121</width>
       <height>51</height>
      </rect>
@@ -117,7 +117,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>330</y>
+      <y>310</y>
       <width>151</width>
       <height>16</height>
      </rect>
@@ -129,9 +129,9 @@
    <widget class="BrowseFiguresWidget" name="lwBrowseFigures">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>350</x>
       <y>280</y>
-      <width>471</width>
+      <width>441</width>
       <height>151</height>
      </rect>
     </property>
@@ -139,9 +139,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>319</x>
+      <x>349</x>
       <y>9</y>
-      <width>471</width>
+      <width>441</width>
       <height>261</height>
      </rect>
     </property>

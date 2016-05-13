@@ -9,12 +9,19 @@
 
 #include <QLabel>
 
-#include "devicedialog.h"
+#include <QDir>
 #include "serialhandler.h"
 
 #include "browsefigureswidget.h"
 
 #include "jogdialog.h"
+
+#include <QStringListModel>
+
+#include <QDebug>
+#include <QFile>
+
+#include "filedialog.h"
 
 #define COMMAND_BUFFER_LENGTH 127
 
@@ -82,15 +89,17 @@ private slots:
     void onListItemClicked(QListWidgetItem* item);
 
     void on_btnHome_clicked();    
-    void on_btnNewPrint_clicked();
     void on_btnEmergencyStop_clicked();
     void on_btnStartPrint_clicked();
     void on_btnJog_clicked();
+
+    void on_btnSliceAndPrint_clicked();
 
 private:
     Ui::MainWindow *ui;
     QSerialPort *m_serialPort;
     JogDialog *jogDialog;
+    FileDialog *fileDialog;
 
     QProgressBar *progressBar;
 
