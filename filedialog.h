@@ -7,6 +7,10 @@
 
 #include <QDir>
 
+#include <QDebug>
+
+#include <QStringListModel>
+
 namespace Ui {
 class FileDialog;
 }
@@ -25,12 +29,20 @@ signals:
 private slots:
     void on_btnCancel_clicked();
 
+    void on_btnPrint_clicked();
+
+    void on_btnSlice_clicked();
+
 private:
     Ui::FileDialog *ui;
+
+    QStringList getFileDirectory();
 
     void sliceFile(QString fileName);
     QString getSelectedFileName();
     bool isGCodeFileCreated(QString fileName);
+
+    QStringListModel *listModel;
 };
 
 #endif // FILEDIALOG_H

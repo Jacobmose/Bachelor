@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="btnNext">
+  <widget class="QPushButton" name="btnPrint">
    <property name="geometry">
     <rect>
      <x>290</x>
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Next</string>
+    <string>Print</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btnCancel">
@@ -47,6 +47,19 @@
      <width>371</width>
      <height>221</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnSlice">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>240</y>
+     <width>81</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Slice</string>
    </property>
   </widget>
  </widget>

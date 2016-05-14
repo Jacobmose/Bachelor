@@ -10,7 +10,14 @@ FileDialog::FileDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->btnNext, SIGNAL(clicked(bool)), this, SIGNAL(onBtnNextClicked()));
+    //connect(ui->btnNext, SIGNAL(clicked(bool)), this, SIGNAL(onBtnNextClicked()));
+
+    QStringList fileDirectoryList;
+    fileDirectoryList = getFileDirectory();
+
+    listModel = new QStringListModel(this);
+    listModel->setStringList(fileDirectoryList);
+    ui->lvFiles->setModel(listModel);
 }
 
 FileDialog::~FileDialog()
@@ -21,21 +28,6 @@ FileDialog::~FileDialog()
 void FileDialog::on_btnCancel_clicked()
 {
     close();
-}
-
-void FileDialog::on_btnNext_clicked()
-{
-    QString fileName;
-
-    fileName = getSelectedFileName();
-
-    sliceFile(fileName);
-
-    if(isGCodeFileCreated(fileName))
-        //start print
-
-    qDebug() << fileName;
-
 }
 
 bool FileDialog::isGCodeFileCreated(QString fileName)
@@ -57,16 +49,33 @@ bool FileDialog::isGCodeFileCreated(QString fileName)
 
 QString FileDialog::getSelectedFileName()
 {
-    QModelIndexList list = ui->lvFiles->selectionModel()->selectedIndexes();
+    QString fileName;
 
-    QStringList fileList;
-    foreach(QModelIndex index, list){
-        fileList = list.append(index.data().toString());
+    ui->lvFiles->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    foreach(const QModelIndex &index,
+            ui->lvFiles->selectionModel()->selectedIndexes())
+    {
+        fileName = index.data(Qt::DisplayRole).toString();
     }
 
-    fileName = fileList.first();
-
     return fileName;
+}
+
+QStringList FileDialog::getFileDirectory()
+{
+    QDir figureDir("C:/Users/jacobmosehansen/Desktop/Test");
+    figureDir.setNameFilters(QStringList("*.stl"));
+    figureDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    QStringList figureList = figureDir.entryList();
+
+    for(int i=0; i<figureList.count(); i++)
+    {
+        figureList[i];
+    }
+
+    return figureList;
 }
 
 void FileDialog::sliceFile(QString fileName)
@@ -89,4 +98,27 @@ void FileDialog::sliceFile(QString fileName)
     qDebug() << process.readAll();
 
     process.close();
+}
+
+void FileDialog::on_btnPrint_clicked()
+{
+    QString fileName;
+
+    fileName = getSelectedFileName();
+
+    sliceFile(fileName);
+
+    if(isGCodeFileCreated(fileName))
+        //start print
+
+    qDebug() << fileName;
+}
+
+void FileDialog::on_btnSlice_clicked()
+{
+    QString fileName;
+
+    fileName = getSelectedFileName();
+
+    sliceFile(fileName);
 }

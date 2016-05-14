@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>330</y>
-      <width>311</width>
+      <width>361</width>
       <height>81</height>
      </rect>
     </property>
@@ -29,8 +29,8 @@
      <rect>
       <x>40</x>
       <y>10</y>
-      <width>100</width>
-      <height>100</height>
+      <width>80</width>
+      <height>70</height>
      </rect>
     </property>
     <property name="text">
@@ -40,10 +40,10 @@
    <widget class="QPushButton" name="btnSliceAndPrint">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>140</x>
       <y>10</y>
-      <width>100</width>
-      <height>100</height>
+      <width>80</width>
+      <height>70</height>
      </rect>
     </property>
     <property name="text">
@@ -53,7 +53,7 @@
    <widget class="QPushButton" name="btnEmergencyStop">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>250</x>
       <y>270</y>
       <width>121</width>
       <height>51</height>
@@ -66,10 +66,10 @@
    <widget class="QPushButton" name="btnStartPrint">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>120</y>
-      <width>100</width>
-      <height>100</height>
+      <x>140</x>
+      <y>90</y>
+      <width>80</width>
+      <height>70</height>
      </rect>
     </property>
     <property name="text">
@@ -80,9 +80,9 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>120</y>
-      <width>100</width>
-      <height>100</height>
+      <y>90</y>
+      <width>80</width>
+      <height>70</height>
      </rect>
     </property>
     <property name="text">
@@ -129,9 +129,9 @@
    <widget class="BrowseFiguresWidget" name="lwBrowseFigures">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>390</x>
       <y>280</y>
-      <width>441</width>
+      <width>401</width>
       <height>151</height>
      </rect>
     </property>
@@ -139,13 +139,24 @@
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>349</x>
+      <x>389</x>
       <y>9</y>
-      <width>441</width>
+      <width>401</width>
       <height>261</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="showFigureLayout"/>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_3">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>190</y>
+      <width>191</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
    </widget>
   </widget>
  </widget>

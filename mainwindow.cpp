@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     jogDialog = new JogDialog();
+    fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
 
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
