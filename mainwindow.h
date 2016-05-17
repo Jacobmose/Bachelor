@@ -80,6 +80,8 @@ public slots:
     void onJogTwoStepClicked();
     void onJogFiveStepClicked();
 
+    void onStartPrintFromFileClicked(QString fileName);
+
 private slots:
 
     void writeData(QString &data);
@@ -145,11 +147,15 @@ private:
 
     //SerialHandler *serialHandler;
 
+    void updateRemainingTime(int percent);
+
 
     QString selectedImageName;
 
     QWidget *imageWidget;
     QLabel *imageLabel;
+
+    QTime *timer;
 
 
     //for image display

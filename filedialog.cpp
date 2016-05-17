@@ -10,14 +10,14 @@ FileDialog::FileDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //connect(ui->btnNext, SIGNAL(clicked(bool)), this, SIGNAL(onBtnNextClicked()));
-
     QStringList fileDirectoryList;
     fileDirectoryList = getFileDirectory();
 
     listModel = new QStringListModel(this);
     listModel->setStringList(fileDirectoryList);
     ui->lvFiles->setModel(listModel);
+
+    ui->btnPrint->setEnabled(false);
 }
 
 FileDialog::~FileDialog()
@@ -30,7 +30,7 @@ void FileDialog::on_btnCancel_clicked()
     close();
 }
 
-bool FileDialog::isGCodeFileCreated(QString fileName)
+bool FileDialog::isGCodeFilePresent(QString fileName)
 {
     QDir fileDir("C:/Users/jacobmosehansen/Pictures/testpic");
     fileDir.setNameFilters(QStringList("*.gcode"));
@@ -80,6 +80,12 @@ QStringList FileDialog::getFileDirectory()
 
 void FileDialog::sliceFile(QString fileName)
 {
+    if(isGCodeFilePresent(fileName))
+    {
+        qDebug() << "ERROR: .gcode file is alreadt in directory!";
+        return;
+    }
+
     QProcess process;
     QString configPath = "";
     QString outputPath = "/path/to/" + fileName;
@@ -98,27 +104,21 @@ void FileDialog::sliceFile(QString fileName)
     qDebug() << process.readAll();
 
     process.close();
+
+    if(isGCodeFilePresent(fileName))
+        ui->btnPrint->setEnabled(true);
 }
 
 void FileDialog::on_btnPrint_clicked()
-{
-    QString fileName;
+{    
+    emit startPrintFromFile(m_selectedFileName);
 
-    fileName = getSelectedFileName();
-
-    sliceFile(fileName);
-
-    if(isGCodeFileCreated(fileName))
-        //start print
-
-    qDebug() << fileName;
+    qDebug() << m_selectedFileName;
 }
 
 void FileDialog::on_btnSlice_clicked()
 {
-    QString fileName;
+    m_selectedFileName = getSelectedFileName();
 
-    fileName = getSelectedFileName();
-
-    sliceFile(fileName);
+    sliceFile(m_selectedFileName);
 }

@@ -27,66 +27,66 @@
    <widget class="QPushButton" name="btnHome">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>20</x>
       <y>10</y>
-      <width>80</width>
-      <height>70</height>
+      <width>100</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="text">
-     <string>Home</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="btnSliceAndPrint">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>150</x>
       <y>10</y>
-      <width>80</width>
-      <height>70</height>
+      <width>100</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="text">
-     <string>Slice and Print</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="btnEmergencyStop">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>310</x>
       <y>270</y>
-      <width>121</width>
-      <height>51</height>
+      <width>51</width>
+      <height>50</height>
      </rect>
     </property>
     <property name="text">
-     <string>Emergency Stop</string>
+     <string>Stop</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btnStartPrint">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>90</y>
-      <width>80</width>
-      <height>70</height>
+      <x>150</x>
+      <y>120</y>
+      <width>100</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start Print</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="btnJog">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>90</y>
-      <width>80</width>
-      <height>70</height>
+      <x>20</x>
+      <y>120</y>
+      <width>100</width>
+      <height>90</height>
      </rect>
     </property>
     <property name="text">
-     <string>Jog</string>
+     <string/>
     </property>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
@@ -94,7 +94,7 @@
      <rect>
       <x>10</x>
       <y>440</y>
-      <width>781</width>
+      <width>621</width>
       <height>31</height>
      </rect>
     </property>
@@ -147,16 +147,41 @@
     </property>
     <layout class="QVBoxLayout" name="showFigureLayout"/>
    </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_3">
+   <widget class="QWidget" name="wAuLogo" native="true">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>190</y>
-      <width>191</width>
-      <height>111</height>
+      <x>30</x>
+      <y>250</y>
+      <width>192</width>
+      <height>39</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout"/>
+   </widget>
+   <widget class="QLabel" name="lTimeRemaining">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>440</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Time remaining:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lTime">
+    <property name="geometry">
+     <rect>
+      <x>720</x>
+      <y>440</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
  </widget>

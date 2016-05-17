@@ -24,23 +24,23 @@ public:
     ~FileDialog();
 
 signals:
-    void onBtnNextClicked();
+    void onStartPrintClicked();
+    void startPrintFromFile(QString fileName);
 
 private slots:
     void on_btnCancel_clicked();
-
     void on_btnPrint_clicked();
-
     void on_btnSlice_clicked();
 
 private:
     Ui::FileDialog *ui;
 
     QStringList getFileDirectory();
-
+    bool isGCodeFilePresent(QString fileName);
     void sliceFile(QString fileName);
     QString getSelectedFileName();
-    bool isGCodeFileCreated(QString fileName);
+
+    QString m_selectedFileName;
 
     QStringListModel *listModel;
 };

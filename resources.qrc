@@ -1,5 +1,20 @@
 <RCC>
-    <qresource prefix="/images">
-        <file>images/arrow.png</file>
+    <qresource prefix="/">
+        <file>images/arrowUp.png</file>
+        <file>images/arrowDown.png</file>
+        <file>images/arrowLeft.png</file>
+        <file>images/arrowRight.png</file>
+
+        <file>images/aulogo.png</file>
+        <file>images/btnEmergencyStop.png</file>
+
+
+        <file>images/btnHome.png</file>
+        <file>images/btnSliceAndPrint.png</file>
+        <file>images/btnStartPrint.png</file>
+        <file>images/btnJog.png</file>
+
+
+        <file>qss/stylesheet.qss</file>
     </qresource>
 </RCC>

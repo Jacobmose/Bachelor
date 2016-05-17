@@ -1,0 +1,59 @@
+QWidget#wAuLogo{
+        background-image: url(":/images/aulogo.png")
+
+}
+
+QPushButton#btnEmergencyStop{
+	border-image: url(":/images/btnEmergencyStop.png")
+}
+
+
+QPushButton#btnHome{
+	border-image: url(":/images/btnHome.png")
+}
+
+QPushButton#btnSliceAndPrint{
+	border-image: url(":/images/btnSliceAndPrint.png")
+}
+
+QPushButton#btnStartPrint{
+	border-image: url(":/images/btnStartPrint.png")
+}
+
+QPushButton#btnJog{
+	border-image: url(":/images/btnJog.png")
+}
+
+
+QPushButton#btnZMinus{
+	border-image: url(":/images/arrowDown.png")
+}
+
+QPushButton#btnZPlus{
+	border-image: url(":/images/arrowUp.png")
+}
+
+QPushButton#btnYPlus{
+	border-image: url(":/images/arrowUp.png")
+}
+
+QPushButton#btnYMinus{
+	border-image: url(":/images/arrowDown.png")
+	
+}
+
+QPushButton#btnXMinus{
+	border-image: url(":/images/arrowLeft.png")
+}
+
+QPushButton#btnXPlus{
+	border-image: url(":/images/arrowRight.png")
+}
+
+QWidget#centralWidget{
+	background-color: #eef2d3
+}
+
+QDialog#jogDialog{
+	border: 10px solid
+}

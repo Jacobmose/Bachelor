@@ -13,9 +13,12 @@ MainWindow::MainWindow(QWidget *parent) :
     jogDialog = new JogDialog();
     fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
+    timer = new QTime();
 
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
     connect(this, &MainWindow::sendCommand, this, &MainWindow::writeData);
+
+    connect(fileDialog, SIGNAL(startPrintFromFile(QString)), this, SLOT(onStartPrintFromFileClicked(QString)));
 
     // Jog controls
     connect(jogDialog, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
@@ -29,14 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(jogDialog, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
     connect(jogDialog, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
 
-
-    QImage image("C:/Projects/QtCreator/Bachelor/Bachelor/images/arrow.png");
-    //ui->btnXMinus->setIcon(QPixmap::fromImage(image));
-    //ui->btnXMinus->setIconSize(ui->btnXMinus->size());
-    //ui->btnXMinus->resize(ui->btnXMinus->size());
-
-    centralWidget()->setStyleSheet("background: #F2F2E4");
-
     progressBar = new QProgressBar();
     progressBar->setMinimum(0);
     progressBar->setMaximum(100);
@@ -47,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setScaledContents(true);
+
+    ui->btnEmergencyStop->hide();
 
 
     ui->showFigureLayout->addWidget(imageLabel);
@@ -72,7 +69,7 @@ void MainWindow::onListItemClicked(QListWidgetItem* item)
 
 void MainWindow::openSerialPort()
 {
-    m_serialPort->setPortName("COM6");
+    m_serialPort->setPortName("COM8");
     m_serialPort->setBaudRate(115200);
     m_serialPort->setDataBits(QSerialPort::Data8);
     m_serialPort->setParity(QSerialPort::NoParity);
@@ -112,23 +109,21 @@ void MainWindow::loadFile(QString fileName)
     QString lineData;
     QFile file("C:/Users/jacobmosehansen/Desktop/Test/" + fileName);
 
-//    if(!file.open(QIODevice::ReadOnly))
-//    {
-//        qDebug() << "Cannot open file: " << fileName;
-//        return;
-//    }
+
 
     if(file.open(QIODevice::ReadOnly))
     {
-        QTextStream textStream(&file);
-        while(!textStream.atEnd())
+        if(file.isOpen())
         {
-            lineData = textStream.readLine();
-            lineData = removeComments(lineData);
-            lineData = removeWhiteSpace(lineData);
-            lineData = lineData.trimmed();
+            QTextStream textStream(&file);
+            while(!textStream.atEnd())
+            {
+                lineData = textStream.readLine();
+                lineData = removeComments(lineData);
+                lineData = lineData.trimmed();
 
-            commandQueue.commandList.append(lineData);
+                commandQueue.commandList.append(lineData);
+            }
         }
     }
 
@@ -186,14 +181,21 @@ void MainWindow::onSerialReadyRead()
                     int progress = mapValueToPercent(commandQueue.commandIndex, commandQueue.commandList.count());
                     progressBar->setValue(progress);
 
+                    updateRemainingTime(progress);
+
                     if(commandQueue.commandIndex > commandQueue.commandList.count())
                     {
                         printerStatus.isPrintComplete = true;
                         printerStatus.isPrinting = false;
 
-                        progressBar->setValue(0);
+                        ui->btnStartPrint->setEnabled(true);
 
-                        qDebug() << "Print is done since commandIndex is > than commandList.count";
+                        progressBar->setValue(0);
+                        ui->lTime->setText("Done!");
+
+                        timer->restart();
+
+                        qDebug() << "No more commands from command queue.. Print is done";
 
                         return;
                     }
@@ -202,11 +204,18 @@ void MainWindow::onSerialReadyRead()
 
                     sendNextCommand(commandQueue.commandIndex);
 
-                    qDebug() << "ok received... Command at index: " << commandQueue.commandIndex << " is sent";
+                    qDebug() << "Command at index: " << commandQueue.commandIndex << " is sent";
+                }
+                else if(data.contains("resend"))
+                {
+                    sendNextCommand(commandQueue.commandIndex);
+
+                    qDebug() << "Command resent...";
                 }
                 else if(data.contains("error"))
                 {
-                    qDebug() << "Error on sending command!!!!";
+                    qDebug() << "Error on sending command!";
+
                 }
             }
         }
@@ -256,6 +265,15 @@ int MainWindow::mapValueToPercent(int value, int max)
     return newValue;
 }
 
+void MainWindow::updateRemainingTime(int percent)
+{
+    double timeTaken = timer->elapsed();
+
+    double timeLeft = timeTaken * (1/percent -1);
+
+    ui->lTime->setText(QString::number(timeLeft));
+}
+
 QString MainWindow::removeComments(QString data)
 {
     data.replace(QRegExp(";.*"), "");
@@ -283,7 +301,35 @@ void MainWindow::on_btnEmergencyStop_clicked()
 {
     QString stopCommand = "M112\r\n";
 
+    ui->btnStartPrint->setEnabled(true);
+
     emit sendCommand(stopCommand);
+}
+
+void MainWindow::onStartPrintFromFileClicked(QString fileName)
+{
+    commandQueue.commandIndex = 0;
+    commandQueue.commandList.clear();
+
+    loadFile(fileName);
+
+    printerStatus.isPrinting = true;
+
+    if(commandQueue.commandList.isEmpty())
+    {
+        qDebug() << "commandList is empty!";
+        return;
+    }
+
+    QString firstCommand = commandQueue.commandList.at(commandQueue.commandIndex);
+
+    firstCommand.append("\r\n");
+
+    qDebug() << "Print started with first command: " << firstCommand;
+
+    timer->start();
+
+    emit sendCommand(firstCommand);
 }
 
 void MainWindow::on_btnStartPrint_clicked()
@@ -303,11 +349,16 @@ void MainWindow::on_btnStartPrint_clicked()
         return;
     }
 
+    ui->btnEmergencyStop->show();
+    ui->btnStartPrint->setEnabled(false);
+
     QString firstCommand = commandQueue.commandList.at(commandQueue.commandIndex);
 
     firstCommand.append("\r\n");
 
     qDebug() << "Print started with first command: " << firstCommand;
+
+    timer->start();
 
     emit sendCommand(firstCommand);
 }
