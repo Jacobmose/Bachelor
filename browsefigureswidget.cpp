@@ -2,6 +2,10 @@
 
 #include "QDir"
 
+/**
+ * @brief BrowseFiguresWidget::BrowseFiguresWidget
+ * @param parent
+ */
 BrowseFiguresWidget::BrowseFiguresWidget(QWidget *parent) :
     QListWidget(parent)
 {
@@ -16,11 +20,12 @@ BrowseFiguresWidget::BrowseFiguresWidget(QWidget *parent) :
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setDragEnabled(false);
 
-
     //connect(this, SIGNAL(itemClicked(QListWidgetItem*)), this, SIGNAL(onItemClicked(QListWidgetItem*)));
 }
 
-
+/**
+ * @brief BrowseFiguresWidget::getFigureFileDirectory
+ */
 void BrowseFiguresWidget::getFigureFileDirectory()
 {
     QDir figureDir("C:/Users/jacobmosehansen/Pictures/testpic");
@@ -39,6 +44,11 @@ void BrowseFiguresWidget::getFigureFileDirectory()
     }
 }
 
+/**
+ * @brief BrowseFiguresWidget::event
+ * @param e
+ * @return
+ */
 bool BrowseFiguresWidget::event(QEvent *e)
 {
     if(e->type() == QEvent::Gesture)
@@ -60,6 +70,10 @@ bool BrowseFiguresWidget::gestureEvent(QGestureEvent *event)
     return true;
 }
 
+/**
+ * @brief BrowseFiguresWidget::swipeTriggered
+ * @param swipeGesture
+ */
 void BrowseFiguresWidget::swipeTriggered(QSwipeGesture *swipeGesture)
 {
     qDebug() << "swipeTriggered()";
@@ -71,8 +85,6 @@ void BrowseFiguresWidget::swipeTriggered(QSwipeGesture *swipeGesture)
             qDebug() << "swipeTriggered() next";
             //setCurrentIndex( std::max(0, currentIndex()-1));
             //setCurrentItem();
-
-
         }
         else if(swipeGesture->horizontalDirection() == QSwipeGesture::Right)
         {

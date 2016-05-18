@@ -1,6 +1,10 @@
 #include "jogdialog.h"
 #include "ui_jogdialog.h"
 
+/**
+ * @brief JogDialog::JogDialog
+ * @param parent
+ */
 JogDialog::JogDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::JogDialog)
@@ -24,11 +28,17 @@ JogDialog::JogDialog(QWidget *parent) :
     //this->setObjectName("jogDialogObj");
 }
 
+/**
+ * @brief JogDialog::~JogDialog
+ */
 JogDialog::~JogDialog()
 {
     delete ui;
 }
 
+/**
+ * @brief JogDialog::on_btnClose_clicked
+ */
 void JogDialog::on_btnClose_clicked()
 {
     close();

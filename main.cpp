@@ -3,28 +3,24 @@
 
 #include <QFile>
 
+#define STYLE_SHEET_PATH ":/qss/stylesheet.qss"
+
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication application(argc, argv);
 
-//    QFile styleFile("C:/Projects/QtCreator/Bachelor/Bachelor/style.qss");
-//    styleFile.open(QFile::ReadOnly);
-//    QString styleSheet = QLatin1String(styleFile.readAll());
-//    a.setStyleSheet(styleSheet);
-
-    QFile styleFile(":/qss/stylesheet.qss");
+    QFile styleFile(STYLE_SHEET_PATH);
         styleFile.open(QFile::ReadOnly);
 
-        if (styleFile.isOpen())
-        {
-            a.setStyleSheet(styleFile.readAll());
-        }
+    if (styleFile.isOpen())
+    {
+        application.setStyleSheet(styleFile.readAll());
+    }
 
-        styleFile.close();
+    styleFile.close();
 
+    MainWindow mainWindow;
+    mainWindow.show();
 
-    MainWindow w;
-    w.show();
-
-    return a.exec();
+    return application.exec();
 }

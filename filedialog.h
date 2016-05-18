@@ -2,13 +2,9 @@
 #define FILEDIALOG_H
 
 #include <QDialog>
-
 #include <QProcess>
-
 #include <QDir>
-
 #include <QDebug>
-
 #include <QStringListModel>
 
 namespace Ui {
@@ -41,7 +37,6 @@ private:
     QString getSelectedFileName();
 
     QString m_selectedFileName;
-
     QStringListModel *listModel;
 };
 

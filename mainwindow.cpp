@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
-
+/**
+ * @brief MainWindow::MainWindow
+ * @param parent
+ */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     imageLabel(new QLabel),
@@ -10,14 +12,15 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // Initialize the dialogs
     jogDialog = new JogDialog();
     fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
-    timer = new QTime();
 
+    // connects signal ReadyRead from QSerialPort to SLOT onSerialReadtRead
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
-    connect(this, &MainWindow::sendCommand, this, &MainWindow::writeData);
 
+    // Connects signal clicked() on btnPrint from fileDialog to SLOT onStartPrintFromFileClicked
     connect(fileDialog, SIGNAL(startPrintFromFile(QString)), this, SLOT(onStartPrintFromFileClicked(QString)));
 
     // Jog controls
@@ -32,16 +35,27 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(jogDialog, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
     connect(jogDialog, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
 
-    progressBar = new QProgressBar();
-    progressBar->setMinimum(0);
-    progressBar->setMaximum(100);
-
-    ui->vlPrograssBar->addWidget(progressBar);
-
     connect(ui->lwBrowseFigures, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onListItemClicked(QListWidgetItem*)));
+
+    addProgressBar();
 
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setScaledContents(true);
+
+    QDir figureDir(IMAGE_DIRECTORY);
+    figureDir.setNameFilters(QStringList("*.png"));
+    figureDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    QFileInfoList files = figureDir.entryInfoList();
+
+    QListWidgetItem *fileItem = 0;
+
+    fileItem = new QListWidgetItem(files[0].fileName());
+    fileItem->setIcon(QIcon(IMAGE_DIRECTORY + files[0].fileName()));
+
+    QString defaultImage = fileItem->text();
+    QPixmap image(IMAGE_DIRECTORY + defaultImage);
+    imageLabel->setPixmap(image);
 
     ui->btnEmergencyStop->hide();
 
@@ -51,46 +65,66 @@ MainWindow::MainWindow(QWidget *parent) :
     openSerialPort();
 }
 
+/**
+ * @brief MainWindow::~MainWindow
+ */
 MainWindow::~MainWindow()
 {
-    closeSerialPort();
     delete jogDialog;
+    delete fileDialog;
+    delete m_serialPort;
     delete ui;
 }
 
+/**
+ * @brief MainWindow::addProgressBar
+ */
+void MainWindow::addProgressBar()
+{
+    progressBar = new QProgressBar();
+    progressBar->setMinimum(0);
+    progressBar->setMaximum(100);
+
+    ui->vlPrograssBar->addWidget(progressBar);
+}
+
+/**
+ * @brief MainWindow::onListItemClicked
+ * @param item
+ */
 void MainWindow::onListItemClicked(QListWidgetItem* item)
 {
-      QPixmap image("C:/Users/jacobmosehansen/Pictures/testpic/" + item->text());
+      QPixmap image(IMAGE_DIRECTORY + item->text());
       imageLabel->setPixmap(image);
 
       selectedImageName = item->text();
 }
 
-
+/**
+ * @brief MainWindow::openSerialPort
+ *
+ */
 void MainWindow::openSerialPort()
 {
-    m_serialPort->setPortName("COM8");
-    m_serialPort->setBaudRate(115200);
+    m_serialPort->setPortName(SERIAL_PORT_NAME);
+    m_serialPort->setBaudRate(SERIAL_BAUD_RATE);
     m_serialPort->setDataBits(QSerialPort::Data8);
     m_serialPort->setParity(QSerialPort::NoParity);
     m_serialPort->setStopBits(QSerialPort::OneStop);
     m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
     m_serialPort->open(QIODevice::ReadWrite);
 
-    if(!m_serialPort->isOpen())
+    if(!m_serialPort->isOpen()) // TODO For debugging purposes
         qDebug() << "SerialPort not openend...";
 }
 
-void MainWindow::closeSerialPort()
-{
-    if(m_serialPort->isOpen())
-        m_serialPort->close();
-}
-
+/**
+ * @brief MainWindow::getFigureFileDirectory
+ */
 void MainWindow::getFigureFileDirectory()
 {
-    QDir figureDir("C:/Users/jacobmosehansen/Pictures/testpic");
-    figureDir.setNameFilters(QStringList("*.png"));
+    QDir figureDir(IMAGE_DIRECTORY);
+    figureDir.setNameFilters(QStringList() << "*.png" << "*.jpg" << "*.jpeg");
     figureDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList files = figureDir.entryInfoList();
@@ -100,16 +134,26 @@ void MainWindow::getFigureFileDirectory()
     foreach(QFileInfo file, files)
     {
         fileItem = new QListWidgetItem(file.fileName());
-        fileItem->setIcon(QIcon("C:/Users/jacobmosehansen/Pictures/testpic/" + file.fileName()));
+        fileItem->setIcon(QIcon(IMAGE_DIRECTORY + file.fileName()));
     }
+
+    QString defaultImage = fileItem->text();
+
+    qDebug() << defaultImage;
+
+    QPixmap image(IMAGE_DIRECTORY + defaultImage);
+    imageLabel->setPixmap(image);
+
 }
 
+/**
+ * @brief MainWindow::loadFile
+ * @param fileName
+ */
 void MainWindow::loadFile(QString fileName)
 {
     QString lineData;
-    QFile file("C:/Users/jacobmosehansen/Desktop/Test/" + fileName);
-
-
+    QFile file(GCODE_FILE_DIRECTORY + fileName);
 
     if(file.open(QIODevice::ReadOnly))
     {
@@ -119,7 +163,7 @@ void MainWindow::loadFile(QString fileName)
             while(!textStream.atEnd())
             {
                 lineData = textStream.readLine();
-                lineData = removeComments(lineData);
+                lineData.replace(QRegExp(";.*"), "");
                 lineData = lineData.trimmed();
 
                 commandQueue.commandList.append(lineData);
@@ -131,6 +175,10 @@ void MainWindow::loadFile(QString fileName)
     file.close();
 }
 
+/**
+ * @brief MainWindow::writeData
+ * @param data
+ */
 void MainWindow::writeData(QString &data)
 {
     m_serialPort->write(data.toLatin1());
@@ -138,9 +186,13 @@ void MainWindow::writeData(QString &data)
     qDebug() << "writeData: " <<data;
 }
 
+/**
+ * @brief MainWindow::onSerialReadyRead
+ */
 void MainWindow::onSerialReadyRead()
 {
     QStringList list;
+    QTime timer;
 
     QRegExp coordRegExp("X:(\\d+.\\d+)\\sY:(\\d+.\\d+)\\sZ:(\\d+.\\d+)");
     QRegExp tempRegExp("T:(\\d+.\\d+)......B:(\\d+.\\d+)");
@@ -174,14 +226,16 @@ void MainWindow::onSerialReadyRead()
         {
             if(printerStatus.isPrinting)
             {
+                timer.restart();
+                timer.start();
+
                 if(data.contains("ok"))
                 {
                     commandQueue.commandIndex++;
 
-                    int progress = mapValueToPercent(commandQueue.commandIndex, commandQueue.commandList.count());
-                    progressBar->setValue(progress);
+                    updateProgressBar();
 
-                    updateRemainingTime(progress);
+                    updateRemainingTime(timer);
 
                     if(commandQueue.commandIndex > commandQueue.commandList.count())
                     {
@@ -193,7 +247,7 @@ void MainWindow::onSerialReadyRead()
                         progressBar->setValue(0);
                         ui->lTime->setText("Done!");
 
-                        timer->restart();
+                        timer.restart();
 
                         qDebug() << "No more commands from command queue.. Print is done";
 
@@ -223,89 +277,135 @@ void MainWindow::onSerialReadyRead()
         list.append("Reply received: " + data);
     }
 
-//    list.append("Axis positions:");
-//    list.append("X: " + QString::number(printerStatus.MPosX));
-//    list.append("Y: " + QString::number(printerStatus.MPosZ));
-//    list.append("Z: " + QString::number(printerStatus.MPosY));
-
-//    list.append("Temperatures:");
-//    list.append("Extruder: " + QString::number(printerStatus.extruderTemp));
-//    list.append("Room: " + QString::number(printerStatus.bedTemp));
-
-    //list.append(data);
-
     QStringListModel *model = new QStringListModel(this);
     model->setStringList(list);
     ui->commandListView->setModel(model);
 }
 
+/**
+ * @brief MainWindow::setTemperatureReadings
+ * @param list
+ *
+ * For debugging purposes
+ */
+void MainWindow::setTemperatureReadings(QStringList list)
+{
+    list.append("Temperatures:");
+    list.append("Extruder: " + QString::number(printerStatus.extruderTemp));
+    list.append("Room: " + QString::number(printerStatus.bedTemp));
+}
+
+/**
+ * @brief MainWindow::setAxisPosition
+ * @param list
+ *
+ * For debugging purposes
+ */
+void MainWindow::setAxisPosition(QStringList list)
+{
+    list.append("Axis positions:");
+    list.append("X: " + QString::number(printerStatus.MPosX));
+    list.append("Y: " + QString::number(printerStatus.MPosZ));
+    list.append("Z: " + QString::number(printerStatus.MPosY));
+}
+
+/**
+ * @brief MainWindow::sendNextCommand
+ * @param commandIndex
+ */
 void MainWindow::sendNextCommand(int commandIndex)
 {
     QString data = commandQueue.commandList.at(commandIndex -1);
 
-    data.append("\r\n");
+    data.append(NEW_LINE);
 
     qDebug() << "sendNextCommand data: " << data;
 
     emit sendCommand(data);
 }
 
+/**
+ * @brief MainWindow::onSerialError
+ *
+ */
 void MainWindow::onSerialError()
 {
-
+    qDebug() << m_serialPort->errorString();
 }
 
+/**
+ * @brief MainWindow::mapValueToPercent
+ * @param value
+ * @param max
+ * @return
+ */
 int MainWindow::mapValueToPercent(int value, int max)
 {
-    int oldRange = (0-max);
-    int percentRange = (0-99);
-
+    int oldRange = 0 - max;
+    int percentRange = 0 - 99;
     int newValue = (((value - 0) * percentRange) / oldRange) + 0;
 
     return newValue;
 }
 
-void MainWindow::updateRemainingTime(int percent)
+/**
+ * @brief MainWindow::updateRemainingTime
+ * @param timer
+ */
+void MainWindow::updateRemainingTime(QTime timer)
 {
-    double timeTaken = timer->elapsed();
-
-    double timeLeft = timeTaken * (1/percent -1);
+    double timeTaken = timer.elapsed();
+    double timeLeft = timeTaken * (1 / progress - 1);
 
     ui->lTime->setText(QString::number(timeLeft));
 }
 
-QString MainWindow::removeComments(QString data)
+/**
+ * @brief MainWindow::updateProgressBar
+ */
+void MainWindow::updateProgressBar()
 {
-    data.replace(QRegExp(";.*"), "");
+    progress = mapValueToPercent(commandQueue.commandIndex, commandQueue.commandList.count());
 
-    return data.trimmed();
+    progressBar->setValue(progress);
 }
 
-QString MainWindow::removeWhiteSpace(QString data)
-{
-    return data.replace(QRegExp("\\s"), "");
-}
-
+/**
+ * @brief MainWindow::on_btnHome_clicked
+ */
 void MainWindow::on_btnHome_clicked()
 {
-    QString homeCode = "G28\r\n";
-    QString axisPosCode = "M114\r\n";
-    QString tempCode = "M105\r\n";
+    QString homeCode = G28;
+    homeCode.append(NEW_LINE);
+
+    QString axisPosCode = M114;
+    axisPosCode.append(NEW_LINE);
+
+    QString tempCode = M105;
+    tempCode.append(NEW_LINE);
 
     emit sendCommand(homeCode);
     emit sendCommand(axisPosCode);
     emit sendCommand(tempCode);
 }
 
+/**
+ * @brief MainWindow::on_btnEmergencyStop_clicked
+ */
 void MainWindow::on_btnEmergencyStop_clicked()
 {
-    QString stopCommand = "M112\r\n";
+    QString stopCommand = M112;
+    stopCommand.append(NEW_LINE);
 
     ui->btnStartPrint->setEnabled(true);
 
     emit sendCommand(stopCommand);
 }
 
+/**
+ * @brief MainWindow::onStartPrintFromFileClicked
+ * @param fileName
+ */
 void MainWindow::onStartPrintFromFileClicked(QString fileName)
 {
     commandQueue.commandIndex = 0;
@@ -323,15 +423,16 @@ void MainWindow::onStartPrintFromFileClicked(QString fileName)
 
     QString firstCommand = commandQueue.commandList.at(commandQueue.commandIndex);
 
-    firstCommand.append("\r\n");
+    firstCommand.append(NEW_LINE);
 
     qDebug() << "Print started with first command: " << firstCommand;
-
-    timer->start();
 
     emit sendCommand(firstCommand);
 }
 
+/**
+ * @brief MainWindow::on_btnStartPrint_clicked
+ */
 void MainWindow::on_btnStartPrint_clicked()
 {
     commandQueue.commandIndex = 0;
@@ -354,7 +455,7 @@ void MainWindow::on_btnStartPrint_clicked()
 
     QString firstCommand = commandQueue.commandList.at(commandQueue.commandIndex);
 
-    firstCommand.append("\r\n");
+    firstCommand.append(NEW_LINE);
 
     qDebug() << "Print started with first command: " << firstCommand;
 
@@ -363,98 +464,132 @@ void MainWindow::on_btnStartPrint_clicked()
     emit sendCommand(firstCommand);
 }
 
+/**
+ * @brief MainWindow::on_btnJog_clicked
+ */
 void MainWindow::on_btnJog_clicked()
 {
     jogDialog->setModal(true);
     jogDialog->exec();
 }
 
-void MainWindow::onJogBtnXPlusClicked()
+/**
+ * @brief MainWindow::updateAxisPositions
+ * @param axis
+ * @param axisPosition
+ */
+void MainWindow::updateAxisPositions(QString axis, double axisPosition)
 {
-    printerStatus.MPosX += printerStatus.axisSteps;
-
-    QString positionString = "G1 X";
-    positionString.append(QString::number(printerStatus.MPosX));
-    positionString.append("\r\n");
+    QString positionString = G1;
+    positionString.append(" ");
+    positionString.append(axis);
+    positionString.append(QString::number(axisPosition));
+    positionString.append(NEW_LINE);
 
     emit sendCommand(positionString);
 }
 
+/**
+ * @brief MainWindow::onJogBtnXPlusClicked
+ */
+void MainWindow::onJogBtnXPlusClicked()
+{
+    printerStatus.MPosX += printerStatus.axisSteps;
+
+    updateAxisPositions("X", printerStatus.MPosX);
+}
+
+/**
+ * @brief MainWindow::onJogBtnXMinusClicked
+ */
 void MainWindow::onJogBtnXMinusClicked()
 {
     printerStatus.MPosX -= printerStatus.axisSteps;
 
-    QString positionString = "G1 X";
-    positionString.append(QString::number(printerStatus.MPosX));
-    positionString.append("\r\n");
-
-    emit sendCommand(positionString);
+    updateAxisPositions("X", printerStatus.MPosX);
 }
 
 void MainWindow::onJogBtnYPlusClicked()
 {
     printerStatus.MPosY += printerStatus.axisSteps;
 
-    QString positionString = "G1 Y";
-    positionString.append(QString::number(printerStatus.MPosY));
-    positionString.append("\r\n");
-
-    emit sendCommand(positionString);
+    updateAxisPositions("Y", printerStatus.MPosY);
 }
 
+/**
+ * @brief MainWindow::onJogBtnYMinusClicked
+ */
 void MainWindow::onJogBtnYMinusClicked()
 {
     printerStatus.MPosY -= printerStatus.axisSteps;
 
-    QString positionString = "G1 Y";
-    positionString.append(QString::number(printerStatus.MPosY));
-    positionString.append("\r\n");
-
-    emit sendCommand(positionString);
+    updateAxisPositions("Y", printerStatus.MPosY);
 }
 
+/**
+ * @brief MainWindow::onJogBtnZPlusClicked
+ */
 void MainWindow::onJogBtnZPlusClicked()
 {
     printerStatus.MPosZ += printerStatus.axisSteps;
 
-    QString positionString = "G1 Z";
-    positionString.append(QString::number(printerStatus.MPosZ));
-    positionString.append("\r\n");
-
-    emit sendCommand(positionString);
+    updateAxisPositions("Z", printerStatus.MPosZ);
 }
 
+/**
+ * @brief MainWindow::onJogBtnZMinusClicked
+ */
 void MainWindow::onJogBtnZMinusClicked()
 {
     printerStatus.MPosZ -= printerStatus.axisSteps;
 
-    QString positionString = "G1 Z";
-    positionString.append(QString::number(printerStatus.MPosZ));
-    positionString.append("\r\n");
-
-    emit sendCommand(positionString);
+    updateAxisPositions("Z", printerStatus.MPosZ);
 }
 
+/**
+ * @brief MainWindow::setAxisSteps
+ * @param steps
+ */
+void MainWindow::setAxisSteps(double steps)
+{
+    printerStatus.axisSteps = steps;
+}
+
+/**
+ * @brief MainWindow::onJogHalfStepClicked
+ */
 void MainWindow::onJogHalfStepClicked()
 {
-    printerStatus.axisSteps = 0.5;
+    setAxisSteps(0.5);
 }
 
+/**
+ * @brief MainWindow::onJogOneStepClicked
+ */
 void MainWindow::onJogOneStepClicked()
 {
-    printerStatus.axisSteps = 1; // default
+    setAxisSteps(1);
 }
 
+/**
+ * @brief MainWindow::onJogTwoStepClicked
+ */
 void MainWindow::onJogTwoStepClicked()
 {
-    printerStatus.axisSteps = 2;
+     setAxisSteps(2);
 }
 
+/**
+ * @brief MainWindow::onJogFiveStepClicked
+ */
 void MainWindow::onJogFiveStepClicked()
 {
-    printerStatus.axisSteps = 5;
+     setAxisSteps(5);
 }
 
+/**
+ * @brief MainWindow::on_btnSliceAndPrint_clicked
+ */
 void MainWindow::on_btnSliceAndPrint_clicked()
 {
     fileDialog->setModal(true);

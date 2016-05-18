@@ -4,6 +4,10 @@
 #include <QModelIndex>
 #include <QStringListModel>
 
+/**
+ * @brief FileDialog::FileDialog
+ * @param parent
+ */
 FileDialog::FileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FileDialog)
@@ -20,16 +24,27 @@ FileDialog::FileDialog(QWidget *parent) :
     ui->btnPrint->setEnabled(false);
 }
 
+/**
+ * @brief FileDialog::~FileDialog
+ */
 FileDialog::~FileDialog()
 {
     delete ui;
 }
 
+/**
+ * @brief FileDialog::on_btnCancel_clicked
+ */
 void FileDialog::on_btnCancel_clicked()
 {
     close();
 }
 
+/**
+ * @brief FileDialog::isGCodeFilePresent
+ * @param fileName
+ * @return
+ */
 bool FileDialog::isGCodeFilePresent(QString fileName)
 {
     QDir fileDir("C:/Users/jacobmosehansen/Pictures/testpic");
@@ -47,6 +62,10 @@ bool FileDialog::isGCodeFilePresent(QString fileName)
     return false;
 }
 
+/**
+ * @brief FileDialog::getSelectedFileName
+ * @return
+ */
 QString FileDialog::getSelectedFileName()
 {
     QString fileName;
@@ -62,6 +81,10 @@ QString FileDialog::getSelectedFileName()
     return fileName;
 }
 
+/**
+ * @brief FileDialog::getFileDirectory
+ * @return
+ */
 QStringList FileDialog::getFileDirectory()
 {
     QDir figureDir("C:/Users/jacobmosehansen/Desktop/Test");
@@ -78,6 +101,10 @@ QStringList FileDialog::getFileDirectory()
     return figureList;
 }
 
+/**
+ * @brief FileDialog::sliceFile
+ * @param fileName
+ */
 void FileDialog::sliceFile(QString fileName)
 {
     if(isGCodeFilePresent(fileName))
@@ -109,6 +136,9 @@ void FileDialog::sliceFile(QString fileName)
         ui->btnPrint->setEnabled(true);
 }
 
+/**
+ * @brief FileDialog::on_btnPrint_clicked
+ */
 void FileDialog::on_btnPrint_clicked()
 {    
     emit startPrintFromFile(m_selectedFileName);
@@ -116,6 +146,9 @@ void FileDialog::on_btnPrint_clicked()
     qDebug() << m_selectedFileName;
 }
 
+/**
+ * @brief FileDialog::on_btnSlice_clicked
+ */
 void FileDialog::on_btnSlice_clicked()
 {
     m_selectedFileName = getSelectedFileName();

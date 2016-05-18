@@ -2,31 +2,34 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
 #include <QProgressBar>
-
 #include <QImageReader>
-
 #include <QLabel>
-
 #include <QDir>
-#include "serialhandler.h"
-
-#include "browsefigureswidget.h"
-
-#include "jogdialog.h"
-
 #include <QStringListModel>
-
 #include <QDebug>
 #include <QFile>
 
+#include "serialhandler.h"
+#include "browsefigureswidget.h"
+#include "jogdialog.h"
 #include "filedialog.h"
 
-#define COMMAND_BUFFER_LENGTH 127
+#define COMMAND_BUFFER_LENGTH        127
+#define SERIAL_PORT_NAME            "COM8"
+#define SERIAL_BAUD_RATE            115200
+#define FIGURE_FILE_DIRECTORY       "path"
+#define GCODE_FILE_DIRECTORY        "C:/Users/jacobmosehansen/Desktop/Test/"
+#define IMAGE_DIRECTORY             "C:/Users/jacobmosehansen/Pictures/testpic/"
+#define M114                        "M114"
+#define M105                        "M105"
+#define M112                        "M112"
+#define G1                          "G1"
+#define G28                         "G28"
+#define NEW_LINE                    "\r\n"
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 struct PrinterStatus {
@@ -45,12 +48,6 @@ struct CommandQueue {
     int commandIndex;
 };
 
-struct CommandControl {
-    bool isPendingOk = false;
-    bool isPrinting = false;
-    bool isPrintComplete = false;
-};
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -63,7 +60,6 @@ signals:
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
 
     PrinterStatus printerStatus;
 
@@ -83,18 +79,15 @@ public slots:
     void onStartPrintFromFileClicked(QString fileName);
 
 private slots:
-
     void writeData(QString &data);
     void onSerialReadyRead();
     void onSerialError();
-
     void onListItemClicked(QListWidgetItem* item);
 
     void on_btnHome_clicked();    
     void on_btnEmergencyStop_clicked();
     void on_btnStartPrint_clicked();
     void on_btnJog_clicked();
-
     void on_btnSliceAndPrint_clicked();
 
 private:
@@ -102,65 +95,36 @@ private:
     QSerialPort *m_serialPort;
     JogDialog *jogDialog;
     FileDialog *fileDialog;
-
     QProgressBar *progressBar;
+
+    QWidget *imageWidget;
+    QLabel *imageLabel;
+    QTime *timer;
+
+    QString selectedImageName;
+    int progress;
+
+    CommandQueue commandQueue;
 
     QString removeComments(QString data);
     QString removeWhiteSpace(QString data);
 
-    void getFigureFileDirectory();
-
-    CommandQueue commandQueue;
-
-    void sendNextCommand(int commandIndex);
-
     void openSerialPort();
     void closeSerialPort();
-
-    int mapValueToPercent(int value, int max);
-
-
-    QString dataRead;
-    QString axisPositions;
-
-    double getAxisPositions(QString axis);
-
-    double newPos;
-
-    int commandBufferLength();
-
-    double m_xPos = 0;
-    double m_yPos = 0;
-    double m_zPos = 0;
-
-
-    int m_fileCommandIndex;
-    int m_fileProcessedIndex;
-
-    bool m_isPrinting;
-    bool m_printComplete;
-    bool m_lastFileCommandSent;
-
-    QString m_fileName;
-
+    void getFigureFileDirectory();
+    void sendNextCommand(int commandIndex);
     void loadFile(QString fileName);
-
-    //SerialHandler *serialHandler;
-
-    void updateRemainingTime(int percent);
-
-
-    QString selectedImageName;
-
-    QWidget *imageWidget;
-    QLabel *imageLabel;
-
-    QTime *timer;
-
-
-    //for image display
+    void updateRemainingTime(QTime timer);
+    void updateProgressBar();
+    void addProgressBar();
+    void updateAxisPositions(QString axis, double axisPosition);
+    void setAxisSteps(double steps);
+    void setTemperatureReadings(QStringList list);
+    void setAxisPosition(QStringList list);
     void setImage(QString &fileName);
 
+    int mapValueToPercent(int value, int max);
+    double getAxisPositions(QString axis);
 };
 
 #endif // MAINWINDOW_H
