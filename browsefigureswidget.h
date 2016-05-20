@@ -2,7 +2,6 @@
 #define BROWSEFIGURESWIDGET_H
 
 #include <QListWidget>
-
 #include <QEvent>
 #include <QGesture>
 #include <QGestureEvent>
@@ -10,6 +9,8 @@
 #include <QEvent>
 #include <QList>
 #include <QDebug>
+
+#include "printobject.h"
 
 class BrowseFiguresWidget : public QListWidget
 {
@@ -21,7 +22,9 @@ public:
     bool gestureEvent(QGestureEvent *event);
     void swipeTriggered(QSwipeGesture* swipeGesture);
 
-    void getFigureFileDirectory();
+    void getFigureFileDirectory();    
+
+    QList<PrintObject *> printObjects;
 
 signals:
     //void onItemClicked(QListWidgetItem* item);

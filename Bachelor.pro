@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     browsefigureswidget.cpp \
     filedialog.cpp \
     sliceandprintdialog.cpp \
-    jogwindow.cpp
+    jogwindow.cpp \
+    printobject.cpp
 
 HEADERS  += mainwindow.h \
     serialhandler.h \
@@ -29,7 +30,8 @@ HEADERS  += mainwindow.h \
     browsefigureswidget.h \
     filedialog.h \
     sliceandprintdialog.h \
-    jogwindow.h
+    jogwindow.h \
+    printobject.h
 
 RESOURCES += \
     resources.qrc

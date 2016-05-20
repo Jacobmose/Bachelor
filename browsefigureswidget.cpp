@@ -9,7 +9,7 @@
 BrowseFiguresWidget::BrowseFiguresWidget(QWidget *parent) :
     QListWidget(parent)
 {
-    //setAttribute(Qt::WA_AcceptTouchEvents);
+    //setAttribute(Qt::WA_AcceptTouchEvents)
 
     grabGesture(Qt::SwipeGesture);
 
@@ -28,7 +28,8 @@ BrowseFiguresWidget::BrowseFiguresWidget(QWidget *parent) :
  */
 void BrowseFiguresWidget::getFigureFileDirectory()
 {
-    QDir figureDir("C:/Users/jacobmosehansen/Pictures/testpic");
+    QString filePathDir = "C:/Users/jacobmosehansen/Pictures/testpic/";
+    QDir figureDir(filePathDir);
     figureDir.setNameFilters(QStringList("*.png"));
     figureDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
@@ -38,13 +39,17 @@ void BrowseFiguresWidget::getFigureFileDirectory()
 
     foreach(QFileInfo file, files)
     {
-        QPixmap pixmap("C:/Users/jacobmosehansen/Pictures/testpic/" + file.fileName());
+        QString filePath = filePathDir + file.fileName();
+        QPixmap pixmap(filePath);
         QPixmap scaledPixmap = pixmap.scaled(QSize(100,100));
         QIcon icon;
         icon.addPixmap(scaledPixmap);
         fileItem = new QListWidgetItem(file.fileName());
         fileItem->setIcon(icon);
+
         this->addItem(fileItem);
+
+        printObjects.append(new PrintObject(file.fileName().section(".", 0, 0), filePath));
     }
 }
 

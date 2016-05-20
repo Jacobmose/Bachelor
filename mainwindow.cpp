@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
     jogWindow = new JogWindow();
     fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
-
     consoleModel = new QStringListModel(this);
     ui->commandListView->setModel(consoleModel);
 
@@ -39,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(jogWindow, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
     connect(jogWindow, SIGNAL(homeAxisClicked()), this, SLOT(onHomeAxisClicked()));
 
-    connect(ui->lwBrowseFigures, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onListItemClicked(QListWidgetItem*)));
+    connect(ui->lvBrowseFigureWidget, SIGNAL(pressed(QModelIndex)), this, SLOT(onListItemPressed(QModelIndex)));
 
     addProgressBar();
 
@@ -92,16 +91,14 @@ void MainWindow::addProgressBar()
     ui->vlPrograssBar->addWidget(progressBar);
 }
 
-/**
- * @brief Gets the file name of the selected figure.
- * @param item
- */
-void MainWindow::onListItemClicked(QListWidgetItem* item)
+void MainWindow::onListItemPressed(QModelIndex index)
 {
-      QPixmap image(IMAGE_DIRECTORY + item->text());
-      imageLabel->setPixmap(image);
+    PrintObject *printObject = ui->lvBrowseFigureWidget->printObjects.at(index.row());
 
-      selectedImageName = item->text();
+    QPixmap image(printObject->m_filePath);
+    imageLabel->setPixmap(image);
+
+    selectedPrintFileName = printObject->m_name;
 }
 
 /**
@@ -495,7 +492,7 @@ void MainWindow::on_btnStartPrint_clicked()
 {
     commandQueue.commandIndex = 0;
     commandQueue.commandList.clear();
-    QString croppedImageName = selectedImageName.section(".", 0, 0) + ".gcode";
+    QString croppedImageName = selectedPrintFileName + ".gcode";
 
     loadFile(croppedImageName);
 

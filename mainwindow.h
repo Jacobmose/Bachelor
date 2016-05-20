@@ -91,7 +91,7 @@ private slots:
     void writeData(QString &data);
     void onSerialReadyRead();
     void onSerialError();
-    void onListItemClicked(QListWidgetItem* item);
+    void onListItemPressed(QModelIndex index);
 
     void on_btnPreHeat_clicked();
     void on_btnEmergencyStop_clicked();
@@ -116,7 +116,7 @@ private:
     QStringListModel *consoleModel;
     QStringList consoleMessages;
 
-    QString selectedImageName;
+    QString selectedPrintFileName;
     int progress;
 
     CommandQueue commandQueue;
