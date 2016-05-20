@@ -12,8 +12,8 @@
 
 #include "serialhandler.h"
 #include "browsefigureswidget.h"
-#include "jogdialog.h"
 #include "filedialog.h"
+#include "jogwindow.h"
 
 #define COMMAND_BUFFER_LENGTH        127
 #define SERIAL_PORT_NAME            "COM8"
@@ -99,10 +99,12 @@ private slots:
     void on_btnJog_clicked();
     void on_btnSliceAndPrint_clicked();
 
+    void on_btnReloadChocolate_clicked();
+
 private:
     Ui::MainWindow *ui;
     QSerialPort *m_serialPort;
-    JogDialog *jogDialog;
+    JogWindow *jogWindow;
     FileDialog *fileDialog;
     QProgressBar *progressBar;
 
@@ -139,7 +141,7 @@ private:
     void addConsoleMessage(QString message);
 
 
-    int getRemainingTime(QTime time);
+    int getRemainingPreHeatTime(QTime time);
 
     void timerEvent(QTimerEvent *);
 

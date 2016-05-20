@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Initialize the dialogs
-    jogDialog = new JogDialog();
+    jogWindow = new JogWindow();
     fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
 
@@ -27,17 +27,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileDialog, SIGNAL(startPrintFromFile(QString)), this, SLOT(onStartPrintFromFileClicked(QString)));
 
     // Jog controls
-    connect(jogDialog, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
-    connect(jogDialog, SIGNAL(jogYPlusClicked()), this, SLOT(onJogBtnYPlusClicked()));
-    connect(jogDialog, SIGNAL(jogZPlusClicked()), this, SLOT(onJogBtnZPlusClicked()));
-    connect(jogDialog, SIGNAL(jogXMinusClicked()), this, SLOT(onJogBtnXMinusClicked()));
-    connect(jogDialog, SIGNAL(jogYMinusClicked()), this, SLOT(onJogBtnYMinusClicked()));
-    connect(jogDialog, SIGNAL(jogZMinusClicked()), this, SLOT(onJogBtnZMinusClicked()));
-    connect(jogDialog, SIGNAL(jogHalfStepClicked()), this, SLOT(onJogHalfStepClicked()));
-    connect(jogDialog, SIGNAL(jogOneStepClicked()), this, SLOT(onJogOneStepClicked()));
-    connect(jogDialog, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
-    connect(jogDialog, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
-    connect(jogDialog, SIGNAL(homeAxisClicked()), this, SLOT(onHomeAxisClicked()));
+    connect(jogWindow, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
+    connect(jogWindow, SIGNAL(jogYPlusClicked()), this, SLOT(onJogBtnYPlusClicked()));
+    connect(jogWindow, SIGNAL(jogZPlusClicked()), this, SLOT(onJogBtnZPlusClicked()));
+    connect(jogWindow, SIGNAL(jogXMinusClicked()), this, SLOT(onJogBtnXMinusClicked()));
+    connect(jogWindow, SIGNAL(jogYMinusClicked()), this, SLOT(onJogBtnYMinusClicked()));
+    connect(jogWindow, SIGNAL(jogZMinusClicked()), this, SLOT(onJogBtnZMinusClicked()));
+    connect(jogWindow, SIGNAL(jogHalfStepClicked()), this, SLOT(onJogHalfStepClicked()));
+    connect(jogWindow, SIGNAL(jogOneStepClicked()), this, SLOT(onJogOneStepClicked()));
+    connect(jogWindow, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
+    connect(jogWindow, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
+    connect(jogWindow, SIGNAL(homeAxisClicked()), this, SLOT(onHomeAxisClicked()));
 
     connect(ui->lwBrowseFigures, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onListItemClicked(QListWidgetItem*)));
 
@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
-    delete jogDialog;
+    delete jogWindow;
     delete fileDialog;
     delete m_serialPort;
     delete ui;
@@ -292,12 +292,9 @@ void MainWindow::onSerialReadyRead()
             }
         }
 
-        list.append("Reply received: " + data);
+        list.clear();
+        list.append("Reply received: " + data);        
     }
-
-//    QStringListModel *model = new QStringListModel(this);
-//    model->setStringList(list);
-//    ui->commandListView->setModel(model);
 
     addConsoleMessage(list);
 }
@@ -354,7 +351,7 @@ void MainWindow::sendNextCommand(int commandIndex)
  */
 void MainWindow::onSerialError()
 {
-    qDebug() << m_serialPort->errorString();
+    addConsoleMessage("Error: " + m_serialPort->errorString());
 }
 
 /**
@@ -378,13 +375,18 @@ int MainWindow::mapValueToPercent(int value, int max)
  */
 void MainWindow::updateRemainingPrintTime(QTime timer)
 {
-    double timeTaken = timer.elapsed();
-    double timeLeft = timeTaken * (1 / progress - 1);
+    double timeTaken = timer.elapsed() / 1000;
+    double timeLeft = (timeTaken / commandQueue.commandIndex) * commandQueue.commandList.count();
 
     ui->lTime->setText(QString::number(timeLeft));
 }
 
-int MainWindow::getRemainingTime(QTime time)
+/**
+ * @brief get remaining pre heating time
+ * @param time
+ * @return
+ */
+int MainWindow::getRemainingPreHeatTime(QTime time)
 {
     int timeRemainingInMSec =  PRE_HEAT_TIME_IN_MSEC-time.elapsed();
 
@@ -422,6 +424,9 @@ void MainWindow::on_btnPreHeat_clicked()
     timerId = startTimer(1000);
 }
 
+/**
+ * @brief timer event to continually poll Marlin for temperatures
+ */
 void MainWindow::timerEvent(QTimerEvent *)
 {
     QString getTemperatureCode = M105;
@@ -429,7 +434,7 @@ void MainWindow::timerEvent(QTimerEvent *)
 
     emit sendCommand(getTemperatureCode);
 
-    int timeRemaining = getRemainingTime(totalPreHeatingTimer);
+    int timeRemaining = getRemainingPreHeatTime(totalPreHeatingTimer);
 
     addConsoleMessage("Pre heat time remaining: " + QString::number(timeRemaining));
 
@@ -514,12 +519,11 @@ void MainWindow::on_btnStartPrint_clicked()
 }
 
 /**
- * @brief Shows the jogDialog
+ * @brief Shows the jogWindow
  */
 void MainWindow::on_btnJog_clicked()
-{
-    jogDialog->setModal(true);
-    jogDialog->exec();
+{    
+    jogWindow->show();
 }
 
 /**
@@ -538,7 +542,7 @@ void MainWindow::onHomeAxisClicked()
 }
 
 /**
- * @brief Updates the current axis position after a jog in jogDialog
+ * @brief Updates the current axis position after a jog in jogWindow
  * @param axis
  * @param axisPosition
  */
@@ -661,4 +665,9 @@ void MainWindow::on_btnSliceAndPrint_clicked()
 {
     fileDialog->setModal(true);
     fileDialog->exec();
+}
+
+void MainWindow::on_btnReloadChocolate_clicked()
+{
+
 }

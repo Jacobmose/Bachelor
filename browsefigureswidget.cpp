@@ -38,8 +38,12 @@ void BrowseFiguresWidget::getFigureFileDirectory()
 
     foreach(QFileInfo file, files)
     {
+        QPixmap pixmap("C:/Users/jacobmosehansen/Pictures/testpic/" + file.fileName());
+        QPixmap scaledPixmap = pixmap.scaled(QSize(100,100));
+        QIcon icon;
+        icon.addPixmap(scaledPixmap);
         fileItem = new QListWidgetItem(file.fileName());
-        fileItem->setIcon(QIcon("C:/Users/jacobmosehansen/Pictures/testpic/" + file.fileName()));
+        fileItem->setIcon(icon);
         this->addItem(fileItem);
     }
 }

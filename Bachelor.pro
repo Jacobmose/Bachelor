@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     jogdialog.cpp \
     browsefigureswidget.cpp \
     filedialog.cpp \
-    sliceandprintdialog.cpp
+    sliceandprintdialog.cpp \
+    jogwindow.cpp
 
 HEADERS  += mainwindow.h \
     serialhandler.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     jogdialog.h \
     browsefigureswidget.h \
     filedialog.h \
-    sliceandprintdialog.h
+    sliceandprintdialog.h \
+    jogwindow.h
 
 RESOURCES += \
     resources.qrc
@@ -35,4 +37,5 @@ RESOURCES += \
 FORMS    += mainwindow.ui \
     jogdialog.ui \
     filedialog.ui \
-    sliceandprintdialog.ui
+    sliceandprintdialog.ui \
+    jogwindow.ui
