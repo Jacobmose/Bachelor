@@ -21,12 +21,18 @@
 #define FIGURE_FILE_DIRECTORY       "path"
 #define GCODE_FILE_DIRECTORY        "C:/Users/jacobmosehansen/Desktop/Test/"
 #define IMAGE_DIRECTORY             "C:/Users/jacobmosehansen/Pictures/testpic/"
-#define M114                        "M114"
-#define M105                        "M105"
-#define M112                        "M112"
-#define G1                          "G1"
-#define G28                         "G28"
+#define PRE_HEAT_TIME_IN_MSEC       1200000
 #define NEW_LINE                    "\r\n"
+#define PRE_HEAT_TEMPERATURE        60
+
+// G-codes. For addtional information of their function please see: http://reprap.org/wiki/G-code
+#define M114                        "M114" // Get Current Position
+#define M105                        "M105" // Get Extruder Temp
+#define M112                        "M112" // Emergency Stop
+#define G1                          "G1"   // Move Axis
+#define G28                         "G28"  // Home Axis
+#define M104                        "M104" // Set Extruder Temp
+#define M109                        "M109" // Set Extruder Temp and Wait
 
 namespace Ui {
     class MainWindow;
@@ -41,6 +47,7 @@ struct PrinterStatus {
     double axisSteps = 1;
     bool isPrinting = false;
     bool isPrintComplete = false;
+    bool isPreHeating = false;
 };
 
 struct CommandQueue {
@@ -76,6 +83,8 @@ public slots:
     void onJogTwoStepClicked();
     void onJogFiveStepClicked();
 
+    void onHomeAxisClicked();
+
     void onStartPrintFromFileClicked(QString fileName);
 
 private slots:
@@ -84,7 +93,7 @@ private slots:
     void onSerialError();
     void onListItemClicked(QListWidgetItem* item);
 
-    void on_btnHome_clicked();    
+    void on_btnPreHeat_clicked();
     void on_btnEmergencyStop_clicked();
     void on_btnStartPrint_clicked();
     void on_btnJog_clicked();
@@ -100,6 +109,10 @@ private:
     QWidget *imageWidget;
     QLabel *imageLabel;
     QTime *timer;
+    QTime totalPreHeatingTimer;
+
+    QStringListModel *consoleModel;
+    QStringList consoleMessages;
 
     QString selectedImageName;
     int progress;
@@ -114,7 +127,7 @@ private:
     void getFigureFileDirectory();
     void sendNextCommand(int commandIndex);
     void loadFile(QString fileName);
-    void updateRemainingTime(QTime timer);
+    void updateRemainingPrintTime(QTime timer);
     void updateProgressBar();
     void addProgressBar();
     void updateAxisPositions(QString axis, double axisPosition);
@@ -122,9 +135,17 @@ private:
     void setTemperatureReadings(QStringList list);
     void setAxisPosition(QStringList list);
     void setImage(QString &fileName);
+    void addConsoleMessage(QStringList messages);
+    void addConsoleMessage(QString message);
+
+
+    int getRemainingTime(QTime time);
+
+    void timerEvent(QTimerEvent *);
 
     int mapValueToPercent(int value, int max);
     double getAxisPositions(QString axis);
+    int timerId;
 };
 
 #endif // MAINWINDOW_H

@@ -28,6 +28,8 @@ signals:
     void jogTwoStepClicked();
     void jogFiveStepClicked();
 
+    void homeAxisClicked();
+
 private slots:
     void on_btnClose_clicked();
 

@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
 
+    consoleModel = new QStringListModel(this);
+    ui->commandListView->setModel(consoleModel);
+
     // connects signal ReadyRead from QSerialPort to SLOT onSerialReadtRead
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
 
@@ -34,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(jogDialog, SIGNAL(jogOneStepClicked()), this, SLOT(onJogOneStepClicked()));
     connect(jogDialog, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
     connect(jogDialog, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
+    connect(jogDialog, SIGNAL(homeAxisClicked()), this, SLOT(onHomeAxisClicked()));
 
     connect(ui->lwBrowseFigures, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onListItemClicked(QListWidgetItem*)));
 
@@ -89,7 +93,7 @@ void MainWindow::addProgressBar()
 }
 
 /**
- * @brief MainWindow::onListItemClicked
+ * @brief Gets the file name of the selected figure.
  * @param item
  */
 void MainWindow::onListItemClicked(QListWidgetItem* item)
@@ -101,7 +105,7 @@ void MainWindow::onListItemClicked(QListWidgetItem* item)
 }
 
 /**
- * @brief MainWindow::openSerialPort
+ * @brief Opens the serial port with the specified settings.
  *
  */
 void MainWindow::openSerialPort()
@@ -116,6 +120,18 @@ void MainWindow::openSerialPort()
 
     if(!m_serialPort->isOpen()) // TODO For debugging purposes
         qDebug() << "SerialPort not openend...";
+}
+
+void MainWindow::addConsoleMessage(QString message)
+{
+    addConsoleMessage(QStringList() << message);
+}
+
+void MainWindow::addConsoleMessage(QStringList messages)
+{
+    consoleMessages.append(messages);
+    consoleModel->setStringList(consoleMessages);
+    ui->commandListView->scrollToBottom();
 }
 
 /**
@@ -147,7 +163,7 @@ void MainWindow::getFigureFileDirectory()
 }
 
 /**
- * @brief MainWindow::loadFile
+ * @brief Loads the selected file and stores the g code commands in the command queue.
  * @param fileName
  */
 void MainWindow::loadFile(QString fileName)
@@ -187,7 +203,9 @@ void MainWindow::writeData(QString &data)
 }
 
 /**
- * @brief MainWindow::onSerialReadyRead
+ * @brief Function that get called everytime the serial port reads data.
+ *
+ *
  */
 void MainWindow::onSerialReadyRead()
 {
@@ -235,7 +253,7 @@ void MainWindow::onSerialReadyRead()
 
                     updateProgressBar();
 
-                    updateRemainingTime(timer);
+                    updateRemainingPrintTime(timer);
 
                     if(commandQueue.commandIndex > commandQueue.commandList.count())
                     {
@@ -277,16 +295,20 @@ void MainWindow::onSerialReadyRead()
         list.append("Reply received: " + data);
     }
 
-    QStringListModel *model = new QStringListModel(this);
-    model->setStringList(list);
-    ui->commandListView->setModel(model);
+//    QStringListModel *model = new QStringListModel(this);
+//    model->setStringList(list);
+//    ui->commandListView->setModel(model);
+
+    addConsoleMessage(list);
 }
 
 /**
- * @brief MainWindow::setTemperatureReadings
- * @param list
+ * @brief sets the temperature readings in the command console to check temperatures.
  *
  * For debugging purposes
+ *
+ * @param list
+ *
  */
 void MainWindow::setTemperatureReadings(QStringList list)
 {
@@ -296,10 +318,12 @@ void MainWindow::setTemperatureReadings(QStringList list)
 }
 
 /**
- * @brief MainWindow::setAxisPosition
- * @param list
+ * @brief sets the axis positions in the command console to check the actual positions.
  *
  * For debugging purposes
+ *
+ * @param list
+ *
  */
 void MainWindow::setAxisPosition(QStringList list)
 {
@@ -310,7 +334,7 @@ void MainWindow::setAxisPosition(QStringList list)
 }
 
 /**
- * @brief MainWindow::sendNextCommand
+ * @brief Send the next command in the command queue.
  * @param commandIndex
  */
 void MainWindow::sendNextCommand(int commandIndex)
@@ -334,7 +358,7 @@ void MainWindow::onSerialError()
 }
 
 /**
- * @brief MainWindow::mapValueToPercent
+ * @brief Maps the the command queue index value to the percent of the total commands in command queue.
  * @param value
  * @param max
  * @return
@@ -349,10 +373,10 @@ int MainWindow::mapValueToPercent(int value, int max)
 }
 
 /**
- * @brief MainWindow::updateRemainingTime
+ * @brief Updates the remaining time until the current print is complete.
  * @param timer
  */
-void MainWindow::updateRemainingTime(QTime timer)
+void MainWindow::updateRemainingPrintTime(QTime timer)
 {
     double timeTaken = timer.elapsed();
     double timeLeft = timeTaken * (1 / progress - 1);
@@ -360,8 +384,17 @@ void MainWindow::updateRemainingTime(QTime timer)
     ui->lTime->setText(QString::number(timeLeft));
 }
 
+int MainWindow::getRemainingTime(QTime time)
+{
+    int timeRemainingInMSec =  PRE_HEAT_TIME_IN_MSEC-time.elapsed();
+
+    int timeRemainingInMin = (timeRemainingInMSec / (1000*60)) % 60;
+
+    return timeRemainingInMin;
+}
+
 /**
- * @brief MainWindow::updateProgressBar
+ * @brief Updates the progress bar with the current percentage done of the current print.
  */
 void MainWindow::updateProgressBar()
 {
@@ -371,26 +404,46 @@ void MainWindow::updateProgressBar()
 }
 
 /**
- * @brief MainWindow::on_btnHome_clicked
+ * @brief Preheats the chocolate extruder to make sure all chocolate is melted for printing
  */
-void MainWindow::on_btnHome_clicked()
+void MainWindow::on_btnPreHeat_clicked()
 {
-    QString homeCode = G28;
-    homeCode.append(NEW_LINE);
+    QString setTemperatureCode = M104;
+    setTemperatureCode.append(" ");
+    setTemperatureCode.append(PRE_HEAT_TEMPERATURE);
+    setTemperatureCode.append(NEW_LINE);
 
-    QString axisPosCode = M114;
-    axisPosCode.append(NEW_LINE);
+    totalPreHeatingTimer.start();
 
-    QString tempCode = M105;
-    tempCode.append(NEW_LINE);
+    emit sendCommand(setTemperatureCode);
 
-    emit sendCommand(homeCode);
-    emit sendCommand(axisPosCode);
-    emit sendCommand(tempCode);
+    ui->btnStartPrint->setEnabled(false);
+
+    timerId = startTimer(1000);
+}
+
+void MainWindow::timerEvent(QTimerEvent *)
+{
+    QString getTemperatureCode = M105;
+    getTemperatureCode.append(NEW_LINE);
+
+    emit sendCommand(getTemperatureCode);
+
+    int timeRemaining = getRemainingTime(totalPreHeatingTimer);
+
+    addConsoleMessage("Pre heat time remaining: " + QString::number(timeRemaining));
+
+    if(totalPreHeatingTimer.elapsed() >= PRE_HEAT_TIME_IN_MSEC)
+    {
+        addConsoleMessage("Pre heat done!");
+
+        killTimer(timerId);
+        ui->btnStartPrint->setEnabled(true);
+    }
 }
 
 /**
- * @brief MainWindow::on_btnEmergencyStop_clicked
+ * @brief Sends an emergency stop code "M112"
  */
 void MainWindow::on_btnEmergencyStop_clicked()
 {
@@ -403,7 +456,7 @@ void MainWindow::on_btnEmergencyStop_clicked()
 }
 
 /**
- * @brief MainWindow::onStartPrintFromFileClicked
+ * @brief Starts print from the file sliced in fileDialog
  * @param fileName
  */
 void MainWindow::onStartPrintFromFileClicked(QString fileName)
@@ -431,13 +484,12 @@ void MainWindow::onStartPrintFromFileClicked(QString fileName)
 }
 
 /**
- * @brief MainWindow::on_btnStartPrint_clicked
+ * @brief Starts a print with the current selected figure
  */
 void MainWindow::on_btnStartPrint_clicked()
 {
     commandQueue.commandIndex = 0;
     commandQueue.commandList.clear();
-
     QString croppedImageName = selectedImageName.section(".", 0, 0) + ".gcode";
 
     loadFile(croppedImageName);
@@ -446,7 +498,7 @@ void MainWindow::on_btnStartPrint_clicked()
 
     if(commandQueue.commandList.isEmpty())
     {
-        qDebug() << "commandList is empty!";
+        qDebug() << "Command list is empty... file did not load correctly";
         return;
     }
 
@@ -454,10 +506,7 @@ void MainWindow::on_btnStartPrint_clicked()
     ui->btnStartPrint->setEnabled(false);
 
     QString firstCommand = commandQueue.commandList.at(commandQueue.commandIndex);
-
     firstCommand.append(NEW_LINE);
-
-    qDebug() << "Print started with first command: " << firstCommand;
 
     timer->start();
 
@@ -465,7 +514,7 @@ void MainWindow::on_btnStartPrint_clicked()
 }
 
 /**
- * @brief MainWindow::on_btnJog_clicked
+ * @brief Shows the jogDialog
  */
 void MainWindow::on_btnJog_clicked()
 {
@@ -474,7 +523,22 @@ void MainWindow::on_btnJog_clicked()
 }
 
 /**
- * @brief MainWindow::updateAxisPositions
+ * @brief Home X, Y Aand Z axis and gets their current position
+ */
+void MainWindow::onHomeAxisClicked()
+{
+    QString homeCode = G28;
+    homeCode.append(NEW_LINE);
+
+    QString axisPosCode = M114;
+    axisPosCode.append(NEW_LINE);
+
+    emit sendCommand(homeCode);
+    emit sendCommand(axisPosCode);
+}
+
+/**
+ * @brief Updates the current axis position after a jog in jogDialog
  * @param axis
  * @param axisPosition
  */
@@ -490,7 +554,7 @@ void MainWindow::updateAxisPositions(QString axis, double axisPosition)
 }
 
 /**
- * @brief MainWindow::onJogBtnXPlusClicked
+ * @brief Jogs the X axisin the positive direction with the selected axis steps
  */
 void MainWindow::onJogBtnXPlusClicked()
 {
@@ -500,7 +564,7 @@ void MainWindow::onJogBtnXPlusClicked()
 }
 
 /**
- * @brief MainWindow::onJogBtnXMinusClicked
+ * @brief Jogs the X axisin the negative direction with the selected axis steps
  */
 void MainWindow::onJogBtnXMinusClicked()
 {
@@ -509,6 +573,9 @@ void MainWindow::onJogBtnXMinusClicked()
     updateAxisPositions("X", printerStatus.MPosX);
 }
 
+/**
+ * @brief Jogs the Y axisin the positive direction with the selected axis steps
+ */
 void MainWindow::onJogBtnYPlusClicked()
 {
     printerStatus.MPosY += printerStatus.axisSteps;
@@ -517,7 +584,7 @@ void MainWindow::onJogBtnYPlusClicked()
 }
 
 /**
- * @brief MainWindow::onJogBtnYMinusClicked
+ * @brief Jogs the Y axisin the negative direction with the selected axis steps
  */
 void MainWindow::onJogBtnYMinusClicked()
 {
@@ -527,7 +594,7 @@ void MainWindow::onJogBtnYMinusClicked()
 }
 
 /**
- * @brief MainWindow::onJogBtnZPlusClicked
+ * @brief Jogs the Z axisin the positive direction with the selected axis steps
  */
 void MainWindow::onJogBtnZPlusClicked()
 {
@@ -537,7 +604,7 @@ void MainWindow::onJogBtnZPlusClicked()
 }
 
 /**
- * @brief MainWindow::onJogBtnZMinusClicked
+ * @brief Jogs the Z axisin the negative direction with the selected axis steps
  */
 void MainWindow::onJogBtnZMinusClicked()
 {
@@ -547,7 +614,7 @@ void MainWindow::onJogBtnZMinusClicked()
 }
 
 /**
- * @brief MainWindow::setAxisSteps
+ * @brief Sets the axis steps
  * @param steps
  */
 void MainWindow::setAxisSteps(double steps)
@@ -556,7 +623,7 @@ void MainWindow::setAxisSteps(double steps)
 }
 
 /**
- * @brief MainWindow::onJogHalfStepClicked
+ * @brief Sets axis steps to 0.5
  */
 void MainWindow::onJogHalfStepClicked()
 {
@@ -564,7 +631,7 @@ void MainWindow::onJogHalfStepClicked()
 }
 
 /**
- * @brief MainWindow::onJogOneStepClicked
+ * @brief Sets axis steps to 1
  */
 void MainWindow::onJogOneStepClicked()
 {
@@ -572,7 +639,7 @@ void MainWindow::onJogOneStepClicked()
 }
 
 /**
- * @brief MainWindow::onJogTwoStepClicked
+ * @brief Sets axis steps to 2
  */
 void MainWindow::onJogTwoStepClicked()
 {
@@ -580,7 +647,7 @@ void MainWindow::onJogTwoStepClicked()
 }
 
 /**
- * @brief MainWindow::onJogFiveStepClicked
+ * @brief Sets axis steps to 5
  */
 void MainWindow::onJogFiveStepClicked()
 {
@@ -588,7 +655,7 @@ void MainWindow::onJogFiveStepClicked()
 }
 
 /**
- * @brief MainWindow::on_btnSliceAndPrint_clicked
+ * @brief Shows the slice and print dialog
  */
 void MainWindow::on_btnSliceAndPrint_clicked()
 {

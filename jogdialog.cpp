@@ -25,6 +25,9 @@ JogDialog::JogDialog(QWidget *parent) :
     connect(ui->btnTwoStep, SIGNAL(clicked(bool)), this, SIGNAL(jogTwoStepClicked()));
     connect(ui->btnFiveStep, SIGNAL(clicked(bool)), this, SIGNAL(jogFiveStepClicked()));
 
+    // Home
+    connect(ui->btnHomeAxis, SIGNAL(clicked(bool)), this, SIGNAL(homeAxisClicked()));
+
     //this->setObjectName("jogDialogObj");
 }
 
