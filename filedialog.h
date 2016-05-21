@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QStringListModel>
 
+#include "printobject.h"
+
 namespace Ui {
 class FileDialog;
 }
@@ -19,22 +21,23 @@ public:
     explicit FileDialog(QWidget *parent = 0);
     ~FileDialog();
 
+    void setPrintObjects(const QList<PrintObject*> printObjects);
+    void initializeFileList();
+
 signals:
-    void onStartPrintClicked();
-    void startPrintFromFile(QString fileName);
+    void sliceFileClicked(QString fileName);
 
 private slots:
     void on_btnCancel_clicked();
-    void on_btnPrint_clicked();
     void on_btnSlice_clicked();
 
 private:
     Ui::FileDialog *ui;
 
+    QList<PrintObject*> m_printObjects;
+
     QStringList getFileDirectory();
-    bool isGCodeFilePresent(QString fileName);
-    void sliceFile(QString fileName);
-    QString getSelectedFileName();
+    QString getSelectedFileName();    
 
     QString m_selectedFileName;
     QStringListModel *listModel;

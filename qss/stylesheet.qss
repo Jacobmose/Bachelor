@@ -7,11 +7,6 @@ QPushButton#btnEmergencyStop{
 	border-image: url(":/images/btnEmergencyStop.png")
 }
 
-
-QPushButton#btnHome{
-	border-image: url(":/images/btnHome.png")
-}
-
 QPushButton#btnSliceAndPrint{
 	border-image: url(":/images/btnSliceAndPrint.png")
 }
@@ -20,10 +15,17 @@ QPushButton#btnStartPrint{
 	border-image: url(":/images/btnStartPrint.png")
 }
 
+QPushButton#btnPreHeat{
+	border-image: url(":/images/btnPreHeat.png")
+}
+
 QPushButton#btnJog{
 	border-image: url(":/images/btnJog.png")
 }
 
+QPushButton#btnReloadChocolate{
+	border-image: url(":/images/btnReloadChocolate.png")
+}
 
 QPushButton#btnZMinus{
 	border-image: url(":/images/arrowDown.png")
@@ -51,9 +53,5 @@ QPushButton#btnXPlus{
 }
 
 QWidget#centralWidget{
-	background-color: #eef2d3
-}
-
-QDialog#jogDialog{
-	border: 10px solid
+	background-color: #F2F2F2
 }

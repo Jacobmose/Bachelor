@@ -39,17 +39,23 @@ void BrowseFiguresWidget::getFigureFileDirectory()
 
     foreach(QFileInfo file, files)
     {
-        QString filePath = filePathDir + file.fileName();
-        QPixmap pixmap(filePath);
-        QPixmap scaledPixmap = pixmap.scaled(QSize(100,100));
-        QIcon icon;
-        icon.addPixmap(scaledPixmap);
-        fileItem = new QListWidgetItem(file.fileName());
-        fileItem->setIcon(icon);
+        if(file.fileName() != "defaultPrintImage.png")
+        {
+            QString filePath = filePathDir + file.fileName();
+            QPixmap pixmap(filePath);
+            QPixmap scaledPixmap = pixmap.scaled(QSize(100,100));
+            QIcon icon;
+            icon.addPixmap(scaledPixmap);
 
-        this->addItem(fileItem);
+            QString correctedFileName = file.fileName().section(".", 0, 0);
 
-        printObjects.append(new PrintObject(file.fileName().section(".", 0, 0), filePath));
+            fileItem = new QListWidgetItem(correctedFileName);
+            fileItem->setIcon(icon);
+
+            this->addItem(fileItem);
+
+            printObjects.append(new PrintObject(correctedFileName, filePath));
+        }
     }
 }
 

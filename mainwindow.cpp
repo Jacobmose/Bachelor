@@ -22,8 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // connects signal ReadyRead from QSerialPort to SLOT onSerialReadtRead
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
 
-    // Connects signal clicked() on btnPrint from fileDialog to SLOT onStartPrintFromFileClicked
-    connect(fileDialog, SIGNAL(startPrintFromFile(QString)), this, SLOT(onStartPrintFromFileClicked(QString)));
+    connect(fileDialog, SIGNAL(sliceFileClicked(QString)), this, SLOT(onSliceFileClicked(QString)));
 
     // Jog controls
     connect(jogWindow, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
@@ -457,32 +456,49 @@ void MainWindow::on_btnEmergencyStop_clicked()
     emit sendCommand(stopCommand);
 }
 
-/**
- * @brief Starts print from the file sliced in fileDialog
- * @param fileName
- */
-void MainWindow::onStartPrintFromFileClicked(QString fileName)
+void MainWindow::onSliceFileClicked(QString fileName)
 {
-    commandQueue.commandIndex = 0;
-    commandQueue.commandList.clear();
+    QString filePathDir = "C:/Users/jacobmosehansen/Pictures/testpic/";
+    QString filePath = filePathDir + "defaultPrintImage.png";
 
-    loadFile(fileName);
+    PrintObject *printObject = new PrintObject(fileName, filePath);
 
-    printerStatus.isPrinting = true;
+    ui->lvBrowseFigureWidget->printObjects.append(printObject);
 
-    if(commandQueue.commandList.isEmpty())
-    {
-        qDebug() << "commandList is empty!";
-        return;
-    }
+    QPixmap pixmap(filePath);
+    QPixmap scaledPixmap = pixmap.scaled(QSize(100,100));
+    QIcon icon;
+    icon.addPixmap(scaledPixmap);
+    QListWidgetItem *fileItem = new QListWidgetItem(printObject->m_name);
+    fileItem->setIcon(icon);
 
-    QString firstCommand = commandQueue.commandList.at(commandQueue.commandIndex);
+    ui->lvBrowseFigureWidget->addItem(fileItem);
 
-    firstCommand.append(NEW_LINE);
+    sliceFile(printObject);
+}
 
-    qDebug() << "Print started with first command: " << firstCommand;
+void MainWindow::sliceFile(PrintObject* printObject)
+{
+    QString fileName = printObject->m_name + ".stl";
 
-    emit sendCommand(firstCommand);
+    QProcess process;
+    QString configPath = "";
+    QString outputPath = "/path/to/" + fileName;
+    QString sliceCommand = "slic3r " + fileName + " --output " + outputPath;
+
+    // load config file
+    process.execute("--load " + configPath);
+    process.waitForFinished();
+
+    addConsoleMessage(process.readAll());
+
+    // slice file
+    process.execute(sliceCommand);
+    process.waitForFinished();
+
+    addConsoleMessage(process.readAll());
+
+    process.close();
 }
 
 /**
@@ -492,9 +508,9 @@ void MainWindow::on_btnStartPrint_clicked()
 {
     commandQueue.commandIndex = 0;
     commandQueue.commandList.clear();
-    QString croppedImageName = selectedPrintFileName + ".gcode";
+    QString addGcodeExtensionToSelectedFileName = selectedPrintFileName + ".gcode";
 
-    loadFile(croppedImageName);
+    loadFile(addGcodeExtensionToSelectedFileName);
 
     printerStatus.isPrinting = true;
 
@@ -660,6 +676,8 @@ void MainWindow::onJogFiveStepClicked()
  */
 void MainWindow::on_btnSliceAndPrint_clicked()
 {
+    fileDialog->setPrintObjects(ui->lvBrowseFigureWidget->printObjects);
+    fileDialog->initializeFileList();
     fileDialog->setModal(true);
     fileDialog->exec();
 }

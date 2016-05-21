@@ -85,7 +85,7 @@ public slots:
 
     void onHomeAxisClicked();
 
-    void onStartPrintFromFileClicked(QString fileName);
+    void onSliceFileClicked(QString fileName);
 
 private slots:
     void writeData(QString &data);
@@ -139,6 +139,7 @@ private:
     void setImage(QString &fileName);
     void addConsoleMessage(QStringList messages);
     void addConsoleMessage(QString message);
+    void sliceFile(PrintObject* printObject);
 
 
     int getRemainingPreHeatTime(QTime time);

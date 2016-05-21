@@ -12,16 +12,7 @@ FileDialog::FileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FileDialog)
 {
-    ui->setupUi(this);
-
-    QStringList fileDirectoryList;
-    fileDirectoryList = getFileDirectory();
-
-    listModel = new QStringListModel(this);
-    listModel->setStringList(fileDirectoryList);
-    ui->lvFiles->setModel(listModel);
-
-    ui->btnPrint->setEnabled(false);
+    ui->setupUi(this);    
 }
 
 /**
@@ -40,26 +31,19 @@ void FileDialog::on_btnCancel_clicked()
     close();
 }
 
-/**
- * @brief FileDialog::isGCodeFilePresent
- * @param fileName
- * @return
- */
-bool FileDialog::isGCodeFilePresent(QString fileName)
+void FileDialog::initializeFileList()
 {
-    QDir fileDir("C:/Users/jacobmosehansen/Pictures/testpic");
-    fileDir.setNameFilters(QStringList("*.gcode"));
-    fileDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    QStringList fileDirectoryList;
+    fileDirectoryList = getFileDirectory();
 
-    QStringList fileList = fileDir.entryList();
+    listModel = new QStringListModel(this);
+    listModel->setStringList(fileDirectoryList);
+    ui->lvFiles->setModel(listModel);
+}
 
-    for(int i=0; i<fileList.count(); i++)
-        fileList[i];
-
-    if(fileList.contains(fileName))
-        return true;
-
-    return false;
+void FileDialog::setPrintObjects(const QList<PrintObject*> printObjects)
+{
+    m_printObjects = printObjects;
 }
 
 /**
@@ -78,7 +62,7 @@ QString FileDialog::getSelectedFileName()
         fileName = index.data(Qt::DisplayRole).toString();
     }
 
-    return fileName;
+    return fileName.section(".", 0, 0);
 }
 
 /**
@@ -93,57 +77,24 @@ QStringList FileDialog::getFileDirectory()
 
     QStringList figureList = figureDir.entryList();
 
-    for(int i=0; i<figureList.count(); i++)
+    foreach(QString file, figureList)
     {
-        figureList[i];
+        QString correctedFileName = file;
+
+        foreach(PrintObject *printObject, m_printObjects)
+        {
+            if(printObject->m_name + ".stl" != correctedFileName && !figureList.contains(correctedFileName))
+            {
+                figureList.append(correctedFileName);
+            }
+            else
+            {
+                figureList.removeOne(correctedFileName);
+            }
+        }
     }
 
     return figureList;
-}
-
-/**
- * @brief FileDialog::sliceFile
- * @param fileName
- */
-void FileDialog::sliceFile(QString fileName)
-{
-    if(isGCodeFilePresent(fileName))
-    {
-        qDebug() << "ERROR: .gcode file is alreadt in directory!";
-        return;
-    }
-
-    QProcess process;
-    QString configPath = "";
-    QString outputPath = "/path/to/" + fileName;
-    QString sliceCommand = "slic3r " + fileName + " --output " + outputPath;
-
-    // load config file
-    process.execute("--load " + configPath);
-    process.waitForFinished();
-
-    qDebug() << process.readAll();
-
-    // slice file
-    process.execute(sliceCommand);
-    process.waitForFinished();
-
-    qDebug() << process.readAll();
-
-    process.close();
-
-    if(isGCodeFilePresent(fileName))
-        ui->btnPrint->setEnabled(true);
-}
-
-/**
- * @brief FileDialog::on_btnPrint_clicked
- */
-void FileDialog::on_btnPrint_clicked()
-{    
-    emit startPrintFromFile(m_selectedFileName);
-
-    qDebug() << m_selectedFileName;
 }
 
 /**
@@ -151,7 +102,9 @@ void FileDialog::on_btnPrint_clicked()
  */
 void FileDialog::on_btnSlice_clicked()
 {
-    m_selectedFileName = getSelectedFileName();
+    m_selectedFileName = getSelectedFileName();    
 
-    sliceFile(m_selectedFileName);
+    emit sliceFileClicked(m_selectedFileName);
+
+    close();
 }
