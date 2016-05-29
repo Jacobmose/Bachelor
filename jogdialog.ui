@@ -16,9 +16,9 @@
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>180</x>
      <y>350</y>
-     <width>320</width>
+     <width>340</width>
      <height>51</height>
     </rect>
    </property>
@@ -80,7 +80,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>180</x>
      <y>330</y>
      <width>101</width>
      <height>16</height>
@@ -93,7 +93,7 @@
   <widget class="QPushButton" name="btnClose">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>530</x>
      <y>10</y>
      <width>50</width>
      <height>50</height>
@@ -106,7 +106,7 @@
   <widget class="QPushButton" name="btnXPlus">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>300</x>
      <y>110</y>
      <width>70</width>
      <height>70</height>
@@ -132,7 +132,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>180</y>
+     <y>50</y>
      <width>70</width>
      <height>70</height>
     </rect>
@@ -150,7 +150,7 @@
   <widget class="QPushButton" name="btnXMinus">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>100</x>
      <y>110</y>
      <width>70</width>
      <height>70</height>
@@ -170,7 +170,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>50</y>
+     <y>180</y>
      <width>70</width>
      <height>70</height>
     </rect>
@@ -252,9 +252,9 @@
   <widget class="QPushButton" name="btnHomeAxis">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>30</x>
      <y>330</y>
-     <width>70</width>
+     <width>90</width>
      <height>70</height>
     </rect>
    </property>

@@ -9,11 +9,11 @@
 #include <QStringListModel>
 #include <QDebug>
 #include <QFile>
+#include <QSerialPort>
 
-#include "serialhandler.h"
 #include "browsefigureswidget.h"
 #include "filedialog.h"
-#include "jogwindow.h"
+#include "jogdialog.h"
 
 #define COMMAND_BUFFER_LENGTH        127
 #define SERIAL_PORT_NAME            "COM8"
@@ -104,7 +104,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QSerialPort *m_serialPort;
-    JogWindow *jogWindow;
+    JogDialog *jogDialog;
     FileDialog *fileDialog;
     QProgressBar *progressBar;
 

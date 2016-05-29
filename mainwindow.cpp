@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Initialize the dialogs
-    jogWindow = new JogWindow();
+    jogDialog = new JogDialog();
     fileDialog = new FileDialog();
     m_serialPort = new QSerialPort(this);
     consoleModel = new QStringListModel(this);
@@ -25,19 +25,21 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(fileDialog, SIGNAL(sliceFileClicked(QString)), this, SLOT(onSliceFileClicked(QString)));
 
     // Jog controls
-    connect(jogWindow, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
-    connect(jogWindow, SIGNAL(jogYPlusClicked()), this, SLOT(onJogBtnYPlusClicked()));
-    connect(jogWindow, SIGNAL(jogZPlusClicked()), this, SLOT(onJogBtnZPlusClicked()));
-    connect(jogWindow, SIGNAL(jogXMinusClicked()), this, SLOT(onJogBtnXMinusClicked()));
-    connect(jogWindow, SIGNAL(jogYMinusClicked()), this, SLOT(onJogBtnYMinusClicked()));
-    connect(jogWindow, SIGNAL(jogZMinusClicked()), this, SLOT(onJogBtnZMinusClicked()));
-    connect(jogWindow, SIGNAL(jogHalfStepClicked()), this, SLOT(onJogHalfStepClicked()));
-    connect(jogWindow, SIGNAL(jogOneStepClicked()), this, SLOT(onJogOneStepClicked()));
-    connect(jogWindow, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
-    connect(jogWindow, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
-    connect(jogWindow, SIGNAL(homeAxisClicked()), this, SLOT(onHomeAxisClicked()));
+    connect(jogDialog, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
+    connect(jogDialog, SIGNAL(jogYPlusClicked()), this, SLOT(onJogBtnYPlusClicked()));
+    connect(jogDialog, SIGNAL(jogZPlusClicked()), this, SLOT(onJogBtnZPlusClicked()));
+    connect(jogDialog, SIGNAL(jogXMinusClicked()), this, SLOT(onJogBtnXMinusClicked()));
+    connect(jogDialog, SIGNAL(jogYMinusClicked()), this, SLOT(onJogBtnYMinusClicked()));
+    connect(jogDialog, SIGNAL(jogZMinusClicked()), this, SLOT(onJogBtnZMinusClicked()));
+    connect(jogDialog, SIGNAL(jogHalfStepClicked()), this, SLOT(onJogHalfStepClicked()));
+    connect(jogDialog, SIGNAL(jogOneStepClicked()), this, SLOT(onJogOneStepClicked()));
+    connect(jogDialog, SIGNAL(jogTwoStepClicked()), this, SLOT(onJogTwoStepClicked()));
+    connect(jogDialog, SIGNAL(jogFiveStepClicked()), this, SLOT(onJogFiveStepClicked()));
+    connect(jogDialog, SIGNAL(homeAxisClicked()), this, SLOT(onHomeAxisClicked()));
 
     connect(ui->lvBrowseFigureWidget, SIGNAL(pressed(QModelIndex)), this, SLOT(onListItemPressed(QModelIndex)));
+
+    connect(this, SIGNAL(sendCommand(QString&)), this, SLOT(writeData(QString&)));
 
     addProgressBar();
 
@@ -72,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
  */
 MainWindow::~MainWindow()
 {
-    delete jogWindow;
+    delete jogDialog;
     delete fileDialog;
     delete m_serialPort;
     delete ui;
@@ -90,6 +92,10 @@ void MainWindow::addProgressBar()
     ui->vlPrograssBar->addWidget(progressBar);
 }
 
+/**
+ * @brief Displays the selected figure is big format and gets the name
+ * @param index
+ */
 void MainWindow::onListItemPressed(QModelIndex index)
 {
     PrintObject *printObject = ui->lvBrowseFigureWidget->printObjects.at(index.row());
@@ -118,11 +124,19 @@ void MainWindow::openSerialPort()
         qDebug() << "SerialPort not openend...";
 }
 
+/**
+ * @brief Adds a message to the console
+ * @param message
+ */
 void MainWindow::addConsoleMessage(QString message)
 {
     addConsoleMessage(QStringList() << message);
 }
 
+/**
+ * @brief Adds message(s) to the console
+ * @param messages
+ */
 void MainWindow::addConsoleMessage(QStringList messages)
 {
     consoleMessages.append(messages);
@@ -234,6 +248,12 @@ void MainWindow::onSerialReadyRead()
             {
                 printerStatus.extruderTemp = tempRegExp.cap(1).toDouble();
                 printerStatus.bedTemp = tempRegExp.cap(2).toDouble();
+
+                QString extruderTemperature = QString::number(printerStatus.extruderTemp);
+                QString roomTemperature = QString::number(printerStatus.bedTemp);
+
+                addConsoleMessage("Current temperature is: " + extruderTemperature);
+                addConsoleMessage("Room temperature is: " + roomTemperature);
             }
         }
         else if(data.length() > 0)
@@ -532,11 +552,11 @@ void MainWindow::on_btnStartPrint_clicked()
 }
 
 /**
- * @brief Shows the jogWindow
+ * @brief Shows the jogDialog
  */
 void MainWindow::on_btnJog_clicked()
 {    
-    jogWindow->show();
+    jogDialog->show();
 }
 
 /**
@@ -555,7 +575,7 @@ void MainWindow::onHomeAxisClicked()
 }
 
 /**
- * @brief Updates the current axis position after a jog in jogWindow
+ * @brief Updates the current axis position after a jog in jogDialog
  * @param axis
  * @param axisPosition
  */

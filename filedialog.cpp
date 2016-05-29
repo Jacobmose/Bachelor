@@ -31,6 +31,12 @@ void FileDialog::on_btnCancel_clicked()
     close();
 }
 
+/**
+ * @brief FileDialog::initializeFileList
+ *
+ * This is done because we have to wait for the PrintObject list before loading files into the file dialog
+ *
+ */
 void FileDialog::initializeFileList()
 {
     QStringList fileDirectoryList;
