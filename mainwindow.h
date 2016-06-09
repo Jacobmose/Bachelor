@@ -23,7 +23,8 @@
 #define IMAGE_DIRECTORY             "C:/Users/jacobmosehansen/Pictures/testpic/"
 #define PRE_HEAT_TIME_IN_MSEC       1200000
 #define NEW_LINE                    "\r\n"
-#define PRE_HEAT_TEMPERATURE        60
+#define PRE_HEAT_TEMPERATURE        "60"
+#define PRINT_TEMPERATURE           "30"
 
 // G-codes. For addtional information of their function please see: http://reprap.org/wiki/G-code
 #define M114                        "M114" // Get Current Position
@@ -33,6 +34,7 @@
 #define G28                         "G28"  // Home Axis
 #define M104                        "M104" // Set Extruder Temp
 #define M109                        "M109" // Set Extruder Temp and Wait
+#define G92                         "G92"  // Set Axis Position
 
 namespace Ui {
     class MainWindow;
@@ -42,6 +44,7 @@ struct PrinterStatus {
     double MPosX;
     double MPosY;
     double MPosZ;
+    double MPosE;
     double extruderTemp;
     double bedTemp;
     double axisSteps = 1;
@@ -60,9 +63,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 signals:
-    void sendData(QString &data);
     void sendCommand(QString &data);
-    void startPrint(QString &fileName);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -74,9 +75,11 @@ public slots:
     void onJogBtnXPlusClicked();
     void onJogBtnYPlusClicked();
     void onJogBtnZPlusClicked();
+    void onJogBtnEPlusClicked();
     void onJogBtnXMinusClicked();
     void onJogBtnYMinusClicked();
     void onJogBtnZMinusClicked();
+    void onJogBtnEMinusClicked();
 
     void onJogHalfStepClicked();
     void onJogOneStepClicked();
@@ -92,13 +95,11 @@ private slots:
     void onSerialReadyRead();
     void onSerialError();
     void onListItemPressed(QModelIndex index);
-
     void on_btnPreHeat_clicked();
     void on_btnEmergencyStop_clicked();
     void on_btnStartPrint_clicked();
     void on_btnJog_clicked();
     void on_btnSliceAndPrint_clicked();
-
     void on_btnReloadChocolate_clicked();
 
 private:
@@ -107,32 +108,28 @@ private:
     JogDialog *jogDialog;
     FileDialog *fileDialog;
     QProgressBar *progressBar;
-
     QWidget *imageWidget;
     QLabel *imageLabel;
     QTime *timer;
     QTime totalPreHeatingTimer;
-
     QStringListModel *consoleModel;
     QStringList consoleMessages;
-
     QString selectedPrintFileName;
     int progress;
-
+    int timerId;
     CommandQueue commandQueue;
 
     QString removeComments(QString data);
     QString removeWhiteSpace(QString data);
-
     void openSerialPort();
     void closeSerialPort();
-    void getFigureFileDirectory();
     void sendNextCommand(int commandIndex);
     void loadFile(QString fileName);
     void updateRemainingPrintTime(QTime timer);
     void updateProgressBar();
     void addProgressBar();
     void updateAxisPositions(QString axis, double axisPosition);
+    void updateExtruderPositions(double position);
     void setAxisSteps(double steps);
     void setTemperatureReadings(QStringList list);
     void setAxisPosition(QStringList list);
@@ -140,15 +137,11 @@ private:
     void addConsoleMessage(QStringList messages);
     void addConsoleMessage(QString message);
     void sliceFile(PrintObject* printObject);
-
-
     int getRemainingPreHeatTime(QTime time);
-
     void timerEvent(QTimerEvent *);
-
     int mapValueToPercent(int value, int max);
     double getAxisPositions(QString axis);
-    int timerId;
+    void addDefaultImageInPreviewContainer();
 };
 
 #endif // MAINWINDOW_H

@@ -19,9 +19,11 @@ signals:
     void jogXPlusClicked();
     void jogYPlusClicked();
     void jogZPlusClicked();
+    void jogEPlusClicked();
     void jogXMinusClicked();
     void jogYMinusClicked();
     void jogZMinusClicked();
+    void jogEMinusClicked();
 
     void jogHalfStepClicked();
     void jogOneStepClicked();
@@ -33,8 +35,13 @@ signals:
 private slots:
     void on_btnClose_clicked();
 
+    void on_btnHomeAxis_clicked();
+
 private:
     Ui::JogDialog *ui;
+    void initializeMoveButtons(bool flag);
+
+    bool isAxisHomed = false;
 };
 
 #endif // JOGDIALOG_H

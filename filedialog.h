@@ -35,12 +35,11 @@ private:
     Ui::FileDialog *ui;
 
     QList<PrintObject*> m_printObjects;
-
-    QStringList getFileDirectory();
-    QString getSelectedFileName();    
-
     QString m_selectedFileName;
     QStringListModel *listModel;
+
+    QStringList getFileDirectory();
+    QString getSelectedFileName();
 };
 
 #endif // FILEDIALOG_H

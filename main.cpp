@@ -1,7 +1,7 @@
-#include "mainwindow.h"
 #include <QApplication>
-
 #include <QFile>
+
+#include "mainwindow.h"
 
 #define STYLE_SHEET_PATH ":/qss/stylesheet.qss"
 

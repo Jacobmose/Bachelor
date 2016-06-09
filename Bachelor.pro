@@ -17,14 +17,12 @@ SOURCES += main.cpp\
     jogdialog.cpp \
     browsefigureswidget.cpp \
     filedialog.cpp \
-    jogwindow.cpp \
     printobject.cpp
 
 HEADERS  += mainwindow.h \
     jogdialog.h \
     browsefigureswidget.h \
     filedialog.h \
-    jogwindow.h \
     printobject.h
 
 RESOURCES += \
@@ -32,5 +30,4 @@ RESOURCES += \
 
 FORMS    += mainwindow.ui \
     jogdialog.ui \
-    filedialog.ui \
-    jogwindow.ui
+    filedialog.ui

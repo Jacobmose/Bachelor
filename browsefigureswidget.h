@@ -21,15 +21,9 @@ public:
     bool event(QEvent *e);
     bool gestureEvent(QGestureEvent *event);
     void swipeTriggered(QSwipeGesture* swipeGesture);
-
     void getFigureFileDirectory();    
 
     QList<PrintObject *> printObjects;
-
-signals:
-    //void onItemClicked(QListWidgetItem* item);
-
-
 };
 
 #endif // BROWSEFIGURESWIDGET_H

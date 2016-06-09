@@ -5,7 +5,7 @@
 #include <QStringListModel>
 
 /**
- * @brief FileDialog::FileDialog
+ * @brief FileDialog constructor
  * @param parent
  */
 FileDialog::FileDialog(QWidget *parent) :
@@ -16,7 +16,7 @@ FileDialog::FileDialog(QWidget *parent) :
 }
 
 /**
- * @brief FileDialog::~FileDialog
+ * @brief FileDialog destructor
  */
 FileDialog::~FileDialog()
 {
@@ -24,7 +24,7 @@ FileDialog::~FileDialog()
 }
 
 /**
- * @brief FileDialog::on_btnCancel_clicked
+ * @brief Slot for cancel clicked signal
  */
 void FileDialog::on_btnCancel_clicked()
 {
@@ -32,9 +32,7 @@ void FileDialog::on_btnCancel_clicked()
 }
 
 /**
- * @brief FileDialog::initializeFileList
- *
- * This is done because we have to wait for the PrintObject list before loading files into the file dialog
+ * @brief This is done because we have to wait for the PrintObject list before loading files into the file dialog
  *
  */
 void FileDialog::initializeFileList()
@@ -53,7 +51,7 @@ void FileDialog::setPrintObjects(const QList<PrintObject*> printObjects)
 }
 
 /**
- * @brief FileDialog::getSelectedFileName
+ * @brief Gets selected file name
  * @return
  */
 QString FileDialog::getSelectedFileName()
@@ -72,7 +70,7 @@ QString FileDialog::getSelectedFileName()
 }
 
 /**
- * @brief FileDialog::getFileDirectory
+ * @brief Gets the file directory for .stl files
  * @return
  */
 QStringList FileDialog::getFileDirectory()
@@ -104,7 +102,7 @@ QStringList FileDialog::getFileDirectory()
 }
 
 /**
- * @brief FileDialog::on_btnSlice_clicked
+ * @brief Slot for slice button clicked signal
  */
 void FileDialog::on_btnSlice_clicked()
 {

@@ -3,14 +3,12 @@
 #include "QDir"
 
 /**
- * @brief BrowseFiguresWidget::BrowseFiguresWidget
+ * @brief BrowseFiguresWidget constructor
  * @param parent
  */
 BrowseFiguresWidget::BrowseFiguresWidget(QWidget *parent) :
     QListWidget(parent)
 {
-    //setAttribute(Qt::WA_AcceptTouchEvents)
-
     grabGesture(Qt::SwipeGesture);
 
     getFigureFileDirectory();
@@ -19,12 +17,10 @@ BrowseFiguresWidget::BrowseFiguresWidget(QWidget *parent) :
     this->setIconSize(QSize(150,150));
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setDragEnabled(false);
-
-    //connect(this, SIGNAL(itemClicked(QListWidgetItem*)), this, SIGNAL(onItemClicked(QListWidgetItem*)));
 }
 
 /**
- * @brief BrowseFiguresWidget::getFigureFileDirectory
+ * @brief Gets all figure files to be able to add them to list
  */
 void BrowseFiguresWidget::getFigureFileDirectory()
 {
@@ -59,20 +55,13 @@ void BrowseFiguresWidget::getFigureFileDirectory()
     }
 }
 
-/**
- * @brief BrowseFiguresWidget::event
- * @param e
- * @return
- */
 bool BrowseFiguresWidget::event(QEvent *e)
 {
     if(e->type() == QEvent::Gesture)
     {
-        qDebug() << "QEvent::Gesture...";
         return gestureEvent(static_cast<QGestureEvent*>(e));
     }
 
-    //return QWidget::event(e);
     return QListWidget::event(e);
 }
 
@@ -85,10 +74,6 @@ bool BrowseFiguresWidget::gestureEvent(QGestureEvent *event)
     return true;
 }
 
-/**
- * @brief BrowseFiguresWidget::swipeTriggered
- * @param swipeGesture
- */
 void BrowseFiguresWidget::swipeTriggered(QSwipeGesture *swipeGesture)
 {
     qDebug() << "swipeTriggered()";

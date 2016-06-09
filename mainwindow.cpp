@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 /**
- * @brief MainWindow::MainWindow
+ * @brief MainWindow constructor
  * @param parent
  */
 MainWindow::MainWindow(QWidget *parent) :
@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     consoleModel = new QStringListModel(this);
     ui->commandListView->setModel(consoleModel);
 
-    // connects signal ReadyRead from QSerialPort to SLOT onSerialReadtRead
+    // connects signal ReadyRead from QSerialPort to SLOT onSerialReadyRead
     connect(m_serialPort, &QSerialPort::readyRead, this, &MainWindow::onSerialReadyRead);
 
     connect(fileDialog, SIGNAL(sliceFileClicked(QString)), this, SLOT(onSliceFileClicked(QString)));
@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(jogDialog, SIGNAL(jogXPlusClicked()), this, SLOT(onJogBtnXPlusClicked()));
     connect(jogDialog, SIGNAL(jogYPlusClicked()), this, SLOT(onJogBtnYPlusClicked()));
     connect(jogDialog, SIGNAL(jogZPlusClicked()), this, SLOT(onJogBtnZPlusClicked()));
+    connect(jogDialog, SIGNAL(jogEPlusClicked()), this, SLOT(onJogBtnEPlusClicked()));
+    connect(jogDialog, SIGNAL(jogEMinusClicked()), this, SLOT(onJogBtnEMinusClicked()));
     connect(jogDialog, SIGNAL(jogXMinusClicked()), this, SLOT(onJogBtnXMinusClicked()));
     connect(jogDialog, SIGNAL(jogYMinusClicked()), this, SLOT(onJogBtnYMinusClicked()));
     connect(jogDialog, SIGNAL(jogZMinusClicked()), this, SLOT(onJogBtnZMinusClicked()));
@@ -70,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 /**
- * @brief MainWindow::~MainWindow
+ * @brief MainWindow destructor
  */
 MainWindow::~MainWindow()
 {
@@ -93,7 +95,7 @@ void MainWindow::addProgressBar()
 }
 
 /**
- * @brief Displays the selected figure is big format and gets the name
+ * @brief Displays the selected figure in big format and gets the name
  * @param index
  */
 void MainWindow::onListItemPressed(QModelIndex index)
@@ -121,7 +123,7 @@ void MainWindow::openSerialPort()
     m_serialPort->open(QIODevice::ReadWrite);
 
     if(!m_serialPort->isOpen()) // TODO For debugging purposes
-        qDebug() << "SerialPort not openend...";
+        qDebug() << "SerialPort not open...";
 }
 
 /**
@@ -142,34 +144,6 @@ void MainWindow::addConsoleMessage(QStringList messages)
     consoleMessages.append(messages);
     consoleModel->setStringList(consoleMessages);
     ui->commandListView->scrollToBottom();
-}
-
-/**
- * @brief MainWindow::getFigureFileDirectory
- */
-void MainWindow::getFigureFileDirectory()
-{
-    QDir figureDir(IMAGE_DIRECTORY);
-    figureDir.setNameFilters(QStringList() << "*.png" << "*.jpg" << "*.jpeg");
-    figureDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-
-    QFileInfoList files = figureDir.entryInfoList();
-
-    QListWidgetItem *fileItem = 0;
-
-    foreach(QFileInfo file, files)
-    {
-        fileItem = new QListWidgetItem(file.fileName());
-        fileItem->setIcon(QIcon(IMAGE_DIRECTORY + file.fileName()));
-    }
-
-    QString defaultImage = fileItem->text();
-
-    qDebug() << defaultImage;
-
-    QPixmap image(IMAGE_DIRECTORY + defaultImage);
-    imageLabel->setPixmap(image);
-
 }
 
 /**
@@ -458,6 +432,13 @@ void MainWindow::timerEvent(QTimerEvent *)
     {
         addConsoleMessage("Pre heat done!");
 
+        QString setTemperetureCode = M104;
+        setTemperetureCode.append(" ");
+        setTemperetureCode.append(PRINT_TEMPERATURE);
+        setTemperetureCode.append(NEW_LINE);
+
+        emit sendCommand(setTemperetureCode);
+
         killTimer(timerId);
         ui->btnStartPrint->setEnabled(true);
     }
@@ -476,6 +457,10 @@ void MainWindow::on_btnEmergencyStop_clicked()
     emit sendCommand(stopCommand);
 }
 
+/**
+ * @brief slot to be executed when slice is clicked in fileDialog
+ * @param fileName
+ */
 void MainWindow::onSliceFileClicked(QString fileName)
 {
     QString filePathDir = "C:/Users/jacobmosehansen/Pictures/testpic/";
@@ -497,13 +482,17 @@ void MainWindow::onSliceFileClicked(QString fileName)
     sliceFile(printObject);
 }
 
+/**
+ * @brief Slices a file
+ * @param printObject
+ */
 void MainWindow::sliceFile(PrintObject* printObject)
 {
     QString fileName = printObject->m_name + ".stl";
 
     QProcess process;
-    QString configPath = "";
-    QString outputPath = "/path/to/" + fileName;
+    QString configPath = "/usr/local/slicerconfig/config.ini";
+    QString outputPath = "/usr/local/figures/files/" + fileName;
     QString sliceCommand = "slic3r " + fileName + " --output " + outputPath;
 
     // load config file
@@ -530,15 +519,15 @@ void MainWindow::on_btnStartPrint_clicked()
     commandQueue.commandList.clear();
     QString addGcodeExtensionToSelectedFileName = selectedPrintFileName + ".gcode";
 
-    loadFile(addGcodeExtensionToSelectedFileName);
-
-    printerStatus.isPrinting = true;
+    loadFile(addGcodeExtensionToSelectedFileName); 
 
     if(commandQueue.commandList.isEmpty())
     {
         qDebug() << "Command list is empty... file did not load correctly";
         return;
     }
+
+    printerStatus.isPrinting = true;
 
     ui->btnEmergencyStop->show();
     ui->btnStartPrint->setEnabled(false);
@@ -570,7 +559,12 @@ void MainWindow::onHomeAxisClicked()
     QString axisPosCode = M114;
     axisPosCode.append(NEW_LINE);
 
+    QString setExtruderPositionCode = G92;
+    setExtruderPositionCode.append(" E0");
+    setExtruderPositionCode.append(NEW_LINE);
+
     emit sendCommand(homeCode);
+    emit sendCommand(setExtruderPositionCode);
     emit sendCommand(axisPosCode);
 }
 
@@ -583,8 +577,30 @@ void MainWindow::updateAxisPositions(QString axis, double axisPosition)
 {
     QString positionString = G1;
     positionString.append(" ");
+
+    if(axis == "E")
+    {
+        positionString.append(axis);
+        positionString.append(QString::number(axisPosition));
+        positionString.append(NEW_LINE);
+
+        emit sendCommand(positionString);
+        return;
+    }
+
     positionString.append(axis);
     positionString.append(QString::number(axisPosition));
+    positionString.append(NEW_LINE);
+
+    emit sendCommand(positionString);
+}
+
+void MainWindow::updateExtruderPositions(double position)
+{
+    QString positionString = G1;
+    positionString.append(" E");
+    positionString.append(QString::number(position));
+    positionString.append(" F1800");
     positionString.append(NEW_LINE);
 
     emit sendCommand(positionString);
@@ -648,6 +664,20 @@ void MainWindow::onJogBtnZMinusClicked()
     printerStatus.MPosZ -= printerStatus.axisSteps;
 
     updateAxisPositions("Z", printerStatus.MPosZ);
+}
+
+void MainWindow::onJogBtnEPlusClicked()
+{
+    printerStatus.MPosE += printerStatus.axisSteps * 100;
+
+    updateAxisPositions("E", printerStatus.MPosE);
+}
+
+void MainWindow::onJogBtnEMinusClicked()
+{
+    printerStatus.MPosE -= printerStatus.axisSteps * 100;
+
+    updateAxisPositions("E", printerStatus.MPosE);
 }
 
 /**

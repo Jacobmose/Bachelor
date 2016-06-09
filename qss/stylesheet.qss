@@ -36,20 +36,28 @@ QPushButton#btnZPlus{
 }
 
 QPushButton#btnYPlus{
-	border-image: url(":/images/arrowUp.png")
+	border-image: url(":/images/arrowDown.png")
 }
 
 QPushButton#btnYMinus{
-	border-image: url(":/images/arrowDown.png")
+	border-image: url(":/images/arrowUp.png")
 	
 }
 
 QPushButton#btnXMinus{
-	border-image: url(":/images/arrowLeft.png")
+	border-image: url(":/images/arrowRight.png")
 }
 
 QPushButton#btnXPlus{
-	border-image: url(":/images/arrowRight.png")
+	border-image: url(":/images/arrowLeft.png")
+}
+
+QPushButton#btnEMinus{
+	border-image: url(":/images/arrowUp.png")
+}
+
+QPushButton#btnEPlus{
+	border-image: url(":/images/arrowDown.png")
 }
 
 QWidget#centralWidget{
